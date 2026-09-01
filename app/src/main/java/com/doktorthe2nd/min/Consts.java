@@ -6,12 +6,19 @@ import com.doktorthe2nd.min.modules.session.SessionData;
 import com.doktorthe2nd.min.net.ApkBuildFingerprint;
 import com.doktorthe2nd.min.net.FingerprintGenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class Consts {
-    public static final Pair<String, Integer> server = Pair.create("api.oneme.ru", 443);
+    public static final boolean THROUGH_DEBUG_PROXY = false;
+
+    public static final Pair<String, Integer> server =
+            THROUGH_DEBUG_PROXY ? Pair.create("192.168.0.108", 6767) : Pair.create("api.oneme.ru", 443);
     public static final String osVersion = "Android 14";
     public static final String deviceName = "Redmi Note 12";
 
@@ -19,16 +26,16 @@ public class Consts {
     public static final int max_compressed_size = 32*1024*1024;
     public static final int compression_threshold = 512;
 
-    public static final String luaApiAssetsDir = "lua_modules";
-    public static final String luaBuiltInScripts = "lua_scripts";
-    public static final int luaMaxLength = 100000; // does not affect luaApiAssetsDir/*
+    public static final String luaBuiltInModules = "lua_modules";
+    public static final String luaBuildInScripts = "lua_scripts";
+    public static final String luaImportedScripts = "imported_scripts";
 
     // fingerprint https://github.com/MaxApiTeam/PyMax/blob/main/src/pymax/_data/apk_fingerprints.json#L410
     public static final String appVersion = "26.19.1";
     public static final int buildNumber = 6729;
 
     // auto set
-    public static SessionData currentSession; // из MSession::run
+    public static SessionData currentSession; // из MSession.loadSession
     public static long callsSeed = 0; // из ответа на sessionInit
     public static final int clientSessionId = UUID.randomUUID().hashCode();
     public static String instanceId = UUID.randomUUID().toString();
@@ -68,5 +75,20 @@ public class Consts {
         );
         data.put(Consts.appVersion, modelV1);
         return new FingerprintGenerator(data);
+    }
+
+    // who cares that this is `here`
+    public static String readInputStream(InputStream in) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            return new String(out.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

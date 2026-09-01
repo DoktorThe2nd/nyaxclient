@@ -1,6 +1,7 @@
 package com.doktorthe2nd.min.net;
 
 import com.doktorthe2nd.min.Consts;
+import com.doktorthe2nd.min.net.exceptions.ExceedsBufferException;
 import com.doktorthe2nd.min.net.exceptions.PacketException;
 import com.doktorthe2nd.min.net.exceptions.SessionExpiredException;
 import com.github.luben.zstd.Zstd;
@@ -16,44 +17,7 @@ public class PacketProcess {
     private static final int ISOLATE_DECODE_THRESHOLD = 4096;
     private static final int HEADER_SIZE = 10;
 
-    public static String messageFromErrorPayload(Map<String, Object> payload) {
-        if (payload == null) return "Unknown error (payload null)";
-        var msg = payload.get("message");
-        if (msg != null && (msg.equals("FAIL_WRONG_PASSWORD") || msg.equals("FAIL_LOGIN_TOKEN"))) {
-            return "Login error, try again";
-        }
-        for (var key : Set.of("localizedMessage", "message", "title")) {
-            var out = payload.get(key);
-            if (out != null) return out.toString();
-        }
-
-        return "Unknown error";
-    }
-
-    public static boolean isSessionExpiredPayload(Map<String, Object> payload) {
-        return payload != null &&
-        (Objects.equals(payload.get("message"), "FAIL_WRONG_PASSWORD") ||
-                Objects.equals(payload.get("message"), "FAIL_LOGIN_TOKEN"));
-    }
-
-    public static void throwIfPacketError(Packet packet) {
-        if (!packet.isError()) return;
-        if (isSessionExpiredPayload(packet.payload))
-            throw new SessionExpiredException(messageFromErrorPayload(packet.payload));
-        throw new PacketException(messageFromErrorPayload(packet.payload));
-    }
-
-    public static boolean isSessionStateError(PacketException exception) {
-        if (exception instanceof SessionExpiredException) return true;
-        if (exception.getMessage() == null) return false;
-        var text = exception.getMessage().toLowerCase();
-        return text.contains("состояние сессии") ||
-                text.contains("сессия не найдена") ||
-                text.contains("авторизационная сессия") ||
-                text.contains("сессия не онлайн");
-    }
-
-    public static byte[] packPacket(int opcode, Map<String, Object> payload, int seq) throws IOException {
+    public static byte[] packPacket(int opcode, Map<Object, Object> payload, int seq) throws IOException {
         byte[] raw = MessagePackSerializer.serializeMap(payload);
         byte[] body;
         int flag;
@@ -96,13 +60,13 @@ public class PacketProcess {
         }
 
         if (HEADER_SIZE + payloadLength > packet.length) {
-            throw new PacketException("Packet payload length "+payloadLength+" exceeds buffer");
+            throw new ExceedsBufferException("Packet payload length "+payloadLength+" exceeds buffer");
         }
 
         byte[] slice = new byte[payloadLength];
         System.arraycopy(packet, HEADER_SIZE, slice, 0, payloadLength);
 
-        Map<String, Object> payload;
+        Map<Object, Object> payload;
         payload = deserializePayload(slice, compFlag);
         /*if (compFlag == 0 && payloadLength < ISOLATE_DECODE_THRESHOLD) {
             payload = deserializePayload(slice, compFlag);
@@ -114,7 +78,7 @@ public class PacketProcess {
         return new Packet(api, cmd, seq, opcode, payload);
     }
 
-    public static Map<String, Object> deserializePayload(byte[] payloadBytes, int compFlag) {
+    public static Map<Object, Object> deserializePayload(byte[] payloadBytes, int compFlag) {
         byte[] bytes = new byte[payloadBytes.length];
         if (compFlag != 0) {
             bytes = decompressPayload(payloadBytes);

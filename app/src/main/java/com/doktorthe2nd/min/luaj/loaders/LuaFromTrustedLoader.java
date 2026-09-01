@@ -1,4 +1,4 @@
-package com.doktorthe2nd.min.luaj;
+package com.doktorthe2nd.min.luaj.loaders;
 
 import com.doktorthe2nd.min.Consts;
 import com.doktorthe2nd.min.MainActivity;
@@ -12,9 +12,9 @@ public class LuaFromTrustedLoader implements ResourceFinder {
     @Override
     public InputStream findResource(String filename) {
         try {
-            return MainActivity.appContext.getAssets().open(Consts.luaApiAssetsDir+"/"+filename);
+            return MainActivity.appContext.getAssets().open(Consts.luaBuiltInModules +"/"+filename);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 }

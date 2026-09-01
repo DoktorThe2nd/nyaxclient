@@ -6,8 +6,10 @@ import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LZ4 {
@@ -16,13 +18,14 @@ public class LZ4 {
     public static final LZ4FastDecompressor decompressor = factory.fastDecompressor();
 
     public static byte[] compress(byte[] raw) {
-        int maxCompressedLength = compressor.maxCompressedLength(raw.length);
+       /* int maxCompressedLength = compressor.maxCompressedLength(raw.length);
         byte[] compressedData = new byte[maxCompressedLength];
         compressor.compress(
                 raw, 0, raw.length,
                 compressedData, 0, maxCompressedLength
         );
-        return compressedData;
+        return compressedData;*/
+        return compressBlock(raw);
     }
 
     public static byte[] decompress(byte[] compressed) {
@@ -125,5 +128,119 @@ public class LZ4 {
             result[i] = dst.get(i);
         }
         return result;
+    }
+
+    public static byte[] compressBlock(byte[] src) {
+        if (src.length == 0) return new byte[0];
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int srcLen = src.length;
+        int anchor = 0;
+        int i = 0;
+
+        // Hash table: 2^16 entries, stores positions
+        int HASH_BITS = 16;
+        int HASH_SIZE = 1 << HASH_BITS;
+        int[] table = new int[HASH_SIZE];
+        Arrays.fill(table, -1);
+
+        while (i + 3 < srcLen) { // need at least 4 bytes for a match
+            // Compute 4-byte hash
+            int h = ((src[i] & 0xFF) | ((src[i + 1] & 0xFF) << 8) |
+                    ((src[i + 2] & 0xFF) << 16) | ((src[i + 3] & 0xFF) << 24));
+            h = (h * 0x9E3779B1) >>> (32 - HASH_BITS);
+
+            int candidate = table[h];
+            table[h] = i;  // store current position
+
+            if (candidate >= 0 && (i - candidate) <= 65535) {
+                // Try to extend match
+                int maxMatch = srcLen - i;
+                int maxCandidate = srcLen - candidate;
+                int maxPossible = Math.min(maxMatch, maxCandidate);
+                int matchLen = 0;
+                while (matchLen < maxPossible &&
+                        src[candidate + matchLen] == src[i + matchLen]) {
+                    matchLen++;
+                }
+
+                if (matchLen >= 4) {
+                    int litLen = i - anchor;
+                    int matchLenCode = matchLen - 4; // for token low nibble
+
+                    // Write token
+                    int token = 0;
+                    if (litLen >= 15) {
+                        token = 0xF0; // literal length = 15 (extended)
+                    } else {
+                        token = (litLen << 4) & 0xF0;
+                    }
+                    if (matchLenCode >= 15) {
+                        token |= 0x0F; // match length = 19 (extended)
+                    } else {
+                        token |= matchLenCode;
+                    }
+                    out.write(token);
+
+                    // Write extended literal length
+                    if (litLen >= 15) {
+                        int len = litLen - 15;
+                        while (len >= 255) {
+                            out.write(255);
+                            len -= 255;
+                        }
+                        out.write(len);
+                    }
+
+                    // Write literals
+                    out.write(src, anchor, litLen);
+
+                    // Write offset (little-endian, 2 bytes)
+                    int offset = i - candidate;
+                    out.write(offset & 0xFF);
+                    out.write((offset >> 8) & 0xFF);
+
+                    // Write extended match length
+                    if (matchLenCode >= 15) {
+                        int len = matchLenCode - 15;
+                        while (len >= 255) {
+                            out.write(255);
+                            len -= 255;
+                        }
+                        out.write(len);
+                    }
+
+                    // Move forward
+                    i += matchLen;
+                    anchor = i;
+                    continue;
+                }
+            }
+            i++; // no match found, advance one position
+        }
+
+        // Write remaining literals (no match)
+        int remaining = srcLen - anchor;
+        if (remaining > 0) {
+            int token = 0;
+            if (remaining >= 15) {
+                token = 0xF0;
+            } else {
+                token = (remaining << 4) & 0xF0;
+            }
+            out.write(token);
+
+            if (remaining >= 15) {
+                int len = remaining - 15;
+                while (len >= 255) {
+                    out.write(255);
+                    len -= 255;
+                }
+                out.write(len);
+            }
+            out.write(src, anchor, remaining);
+        }
+
+        return out.toByteArray();
     }
 }

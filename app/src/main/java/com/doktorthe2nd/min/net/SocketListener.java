@@ -1,10 +1,13 @@
 package com.doktorthe2nd.min.net;
 
 import com.doktorthe2nd.min.Consts;
+import com.doktorthe2nd.min.modules.MReporter;
+import com.doktorthe2nd.min.net.exceptions.ExceedsBufferException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SocketListener {
@@ -16,18 +19,35 @@ public class SocketListener {
         this.socket = socket;
     }
 
+    private void sendAnswerOnPing() {
+        Connection.sendNoReply(OpcodeTable.ping, new HashMap<>(){{
+            put("interactive", true);
+        }});
+    }
+
     public void start() {
         readerThread = new Thread(() -> {
             try (InputStream in = socket.getInputStream()) {
                 System.out.println("SocketListener started");
                 byte[] buffer = new byte[Consts.max_compressed_size];
                 int bytesRead;
-                while (running.get() && (bytesRead = in.read(buffer)) != -1) {
-                    byte[] data = new byte[bytesRead];
-                    System.arraycopy(buffer, 0, data, 0, bytesRead);
-                    Packet packet = PacketProcess.unpackPacket(data);
-                    System.out.println(packet);
-                    Connection.getFromMap(packet.seq).apply(packet);
+                int off = 0;
+                while (running.get() && (bytesRead = in.read(buffer, off, buffer.length-off)) != -1) {
+                    byte[] data = new byte[off+bytesRead];
+                    System.arraycopy(buffer, 0, data, 0, off+bytesRead);
+                    Packet packet;
+                    try {
+                        packet = PacketProcess.unpackPacket(data);
+                    } catch (ExceedsBufferException e) {
+                        off = bytesRead;
+                        continue;
+                    }
+                    off = 0;
+                    MReporter.log(packet.toString());
+                    if (packet.opcode == OpcodeTable.ping && packet.cmd == Packet.CmdType.push)
+                        sendAnswerOnPing();
+                    else
+                        Connection.popFromMap(packet.seq).apply(packet);
                 }
             } catch (IOException e) {
                 if (running.get()) {

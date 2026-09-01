@@ -1,9 +1,12 @@
 package com.doktorthe2nd.min.luaj;
 
+import android.app.Activity;
 import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
+
+import org.luaj.vm2.lib.ZeroArgFunction;
 
 public interface ScriptAPI {
     Context getAppContext();
+    Activity getActivity();
+    boolean isActivityAlive();
 }

@@ -10,6 +10,9 @@ import android.widget.Toast;
 import com.doktorthe2nd.min.MainActivity;
 import com.doktorthe2nd.min.net.Packet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MReporter {
     public static void makeErrorScreen(Activity activity, String text) {
         MainActivity.runOnUi.run(()->{
@@ -26,6 +29,21 @@ public class MReporter {
             layout.addView(textView);
             activity.setContentView(layout);
         });
+    }
+
+    private static List<String> splitByLength(String text, int N) {
+        List<String> parts = new ArrayList<>();
+        int length = text.length();
+        for (int i = 0; i < length; i += N) {
+            parts.add(text.substring(i, Math.min(length, i + N)));
+        }
+        return parts;
+    }
+
+    public static void log(String str) {
+        for (String line : splitByLength(str, 2000)) {
+            System.out.println(line);
+        }
     }
 
     public static void toastError(String text, int dur) {

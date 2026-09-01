@@ -36,6 +36,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.recyclerview)
+    implementation("androidx.datastore:datastore-preferences-rxjava2:1.2.1")
     implementation("org.msgpack:msgpack-core:0.9.12")
     implementation("at.yawk.lz4:lz4-java:1.11.1")
     implementation("com.github.luben:zstd-jni:1.5.5-11@aar")

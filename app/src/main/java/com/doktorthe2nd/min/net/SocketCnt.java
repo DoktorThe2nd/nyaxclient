@@ -1,31 +1,43 @@
 package com.doktorthe2nd.min.net;
 
+import com.doktorthe2nd.min.Consts;
 import com.doktorthe2nd.min.net.exceptions.SocketException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
 import java.util.Map;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 public class SocketCnt {
-    private static SSLSocket SOCKET;
+    private static Socket SOCKET;
     private static SocketListener SOCKET_LISTENER;
 
     public static void connect(String host, int port) throws SocketException {
-        System.out.println("attempting SocketCnt.connect(host,port)");
+        System.out.println("attempting SocketCnt.connect");
         if (isConnected()) {
-            System.out.println("SocketCnt.connect(host,port) - already connected, skip");
+            System.out.println("SocketCnt.connect - already connected, skip");
             return;
         }
         try {
-            if (isConnected()) disconnect();
-            SOCKET = (SSLSocket)SSLSocketFactory.getDefault().createSocket(host, port);
-            SOCKET.startHandshake();
+            if (Consts.THROUGH_DEBUG_PROXY) {
+                SOCKET = new Socket();
+                SOCKET.connect(new InetSocketAddress(host, port));
+            }
+            else {
+                SOCKET = SSLSocketFactory.getDefault().createSocket(host, port);
+                ((SSLSocket)SOCKET).startHandshake();
+            }
             startListener();
-        } catch (IOException e) {
-            throw new SocketException("Connection (connect) IOException: "+e.getMessage());
+        } catch (Exception e) {
+            throw new SocketException("Connection (connect) Exception: "+e.getMessage());
         }
+        System.out.println("SocketCnt.connect connected");
     }
 
     public static void disconnect() throws SocketException {
@@ -72,13 +84,14 @@ public class SocketCnt {
      * @return seq of this packet
      * @throws SocketException if not connected
      */
-    public static int send(int opcode, Map<String, Object> payload) throws SocketException {
+    public static int send(int opcode, Map<Object, Object> payload) throws SocketException {
         if (!isConnected()) throw new SocketException("Not connected");
         int seq = nextSeq();
-        System.out.println("Sending packet "+new Packet(10, 0, seq, opcode, payload));
+        System.out.println("Sending "+new Packet(10, 0, seq, opcode, payload));
         byte[] data;
         try {
             data = PacketProcess.packPacket(opcode, payload, seq);
+            System.out.println("Actually "+PacketProcess.unpackPacket(data));
             SOCKET.getOutputStream().write(data);
         } catch (IOException e) {
             throw new SocketException("Send packet IOException: "+e.getMessage());

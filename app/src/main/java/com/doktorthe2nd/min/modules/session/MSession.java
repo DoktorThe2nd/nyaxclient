@@ -17,15 +17,19 @@ public class MSession {
     }
 
     public static void init(Runnable onAnswer) {
-        Map<String, Object> payload = new HashMap<>(){{
+        Map<Object, Object> payload = new HashMap<>(){{
             put("mt_instanceid", Consts.instanceId);
             put("userAgent", Consts.getUserAgent());
             put("clientSessionId", Consts.clientSessionId);
             put("deviceId", Consts.deviceId);
         }};
         Connection.sendRequest(OpcodeTable.sessionInit, payload, packet -> {
-            Consts.callsSeed = (Long)Objects.requireNonNull(packet.payload.get("callsSeed"));
-            onAnswer.run();
+            Object seed = packet.payload.get("callsSeed");
+            if (seed instanceof Long) {
+                Consts.callsSeed = (Long) seed;
+                onAnswer.run();
+            }
+            else MReporter.toastError("callsSeed not instanceof Long");
         });
     }
     public static String normalizePhone(String phone) {
@@ -37,7 +41,7 @@ public class MSession {
     private static String gPhone;
     public static void authRequest(String phone, Runnable onAnswer) {
         gPhone = phone;
-        Map<String, Object> payload = new HashMap<>(){{
+        Map<Object, Object> payload = new HashMap<>(){{
             put("phone", phone);
             put("type", "START_AUTH");
             put("mode", Consts.getFingerprint());
@@ -53,7 +57,7 @@ public class MSession {
         return authTrackId != null;
     }
     public static void authSendCode(String code, Runnable onAnswer) {
-        Map<String, Object> payload = new HashMap<>(){{
+        Map<Object, Object> payload = new HashMap<>(){{
             put("token", authToken);
             put("verifyCode", code);
             put("auth_token_type", "CHECK_CODE");
@@ -69,7 +73,7 @@ public class MSession {
         });
     }
     public static void authSendPassword(String password, Runnable onAnswer) {
-        Map<String, Object> payload = new HashMap<>(){{
+        Map<Object, Object> payload = new HashMap<>(){{
             put("trackId", authTrackId);
             put("password", password);
         }};

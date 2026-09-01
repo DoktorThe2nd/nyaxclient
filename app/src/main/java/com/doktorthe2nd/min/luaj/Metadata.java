@@ -2,8 +2,10 @@ package com.doktorthe2nd.min.luaj;
 
 import android.util.Pair;
 
+import com.doktorthe2nd.min.luaj.loaders.LuaFromImportedLoader;
+import com.doktorthe2nd.min.luaj.loaders.LuaFromTrustedLoader;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,15 +24,18 @@ public class Metadata {
     public List<String> unsatisfied_requires = new ArrayList<>();
     public boolean is_error = false;
 
-    public static List<Metadata> getMetadataList(List<Pair<Metadata, String>> requires) {
+    public List<Metadata> getMetadataList() {
         return requires.stream().map(it->it.first).collect(Collectors.toList());
     }
-    public static List<String> getIdList(List<Pair<Metadata, String>> requires) {
+    public List<String> getIdList() {
         return requires.stream().map(it->it.second).collect(Collectors.toList());
     }
 
     public static Metadata gather(String fileData) {
         return gather(fileData, 0, false);
+    }
+    public static Metadata gather(String fileData, boolean is_system) {
+        return gather(fileData, 0, is_system);
     }
     private static Metadata gather(String fileData, int scope, boolean is_system) {
         Metadata metadata = new Metadata();
@@ -113,9 +118,23 @@ public class Metadata {
     private static Pair<String, Boolean> findAndGiveRequire(String require) {
         String relativePath = require.replace('.', '/') + ".lua";
         InputStream fis = new LuaFromImportedLoader().findResource(relativePath);
-        if (fis != null) return Pair.create(ScriptEngine.readInputStream(fis), true);
+        if (fis != null) return Pair.create(readInputStream(fis), true);
         InputStream fis2 = new LuaFromTrustedLoader().findResource(relativePath);
-        if (fis2 != null) return Pair.create(ScriptEngine.readInputStream(fis2), false);
+        if (fis2 != null) return Pair.create(readInputStream(fis2), false);
         return null;
+    }
+
+    private static String readInputStream(InputStream in) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            return new String(out.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,18 +1,21 @@
 package com.doktorthe2nd.min.modules.sync;
 
-import android.os.SystemClock;
-
 import com.doktorthe2nd.min.Consts;
+import com.doktorthe2nd.min.types.MapContainer;
+import com.doktorthe2nd.min.modules.MReporter;
+import com.doktorthe2nd.min.modules.Profile;
+import com.doktorthe2nd.min.modules.chat.MChats;
 import com.doktorthe2nd.min.net.Connection;
 import com.doktorthe2nd.min.net.OpcodeTable;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class MSync {
-    private static Map<String, Object> genPayload() {
-        return new HashMap<>(){{
+    public static void sendLogin(Runnable onReply) {
+        // TODO: in pymax there is login2 function, so PROLLY it is needed. if login fails, think about that
+        // https://github.com/MaxApiTeam/PyMax/blob/9885d79573ceb64bef7c37f750f5621c99ec4f5f/src/pymax/app.py#L211
+
+        Connection.sendRequest(OpcodeTable.login, new HashMap<>(){{
             put("userAgent", Consts.getUserAgent());
             put("token", Consts.currentSession.token);
             put("chatCacheFingerprint", Consts.getFingerprint());
@@ -22,15 +25,25 @@ public class MSync {
             put("interactive", true);
             put("presenceSync", Consts.currentSession.sync.presence_sync);
             put("exp", new HashMap<>(){{
-                put("chatsCountGroups", new byte[]{10, 50});
+                put("chatsCountGroups", new byte[]{10, 50}); // magic
             }});
             put("configHash", Consts.currentSession.sync.config_hash);
-        }};
-    }
-
-    public static void sendLogin() {
-        Connection.sendRequest(OpcodeTable.login, genPayload(), packet -> {
-
+        }}, packet -> {
+            if (MReporter.toastIfError(packet)) return;
+            MapContainer map = new MapContainer(packet.payload);
+            var prof = map.getMap("profile");
+            if (prof == null) {
+                MReporter.toastError("No profile in answer");
+                return;
+            }
+            Profile.myProfile.setData(prof);
+            var chats = map.getMapsArray("chats");
+            if (chats == null) {
+                MReporter.toastError("No chats in answer");
+                return;
+            }
+            MChats.addFromLogin(chats);
+            onReply.run();
         });
     }
 }

@@ -1,4 +1,4 @@
-package com.doktorthe2nd.min.luaj;
+package com.doktorthe2nd.min.luaj.loaders;
 
 import android.content.res.AssetManager;
 
@@ -14,14 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LuaFromAssetsLoader implements ResourceFinder {
-    private static final String rootPath = Consts.luaBuiltInScripts;
-
     @Override
     public InputStream findResource(String filename) {
         try {
-            return MainActivity.appContext.getAssets().open(rootPath+File.separator+filename);
+            return MainActivity.appContext.getAssets().open(Consts.luaBuildInScripts+File.separator+filename);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -33,10 +31,10 @@ public class LuaFromAssetsLoader implements ResourceFinder {
         }
     }
 
-    public static List<String> walk() {
-        return walk(rootPath);
+    public List<String> walk() {
+        return walk(Consts.luaBuildInScripts);
     }
-    public static List<String> walk(String rootPath) {
+    public List<String> walk(String rootPath) {
         List<String> fileList = new ArrayList<>();
         AssetManager am = MainActivity.appContext.getAssets();
         try {
@@ -47,7 +45,7 @@ public class LuaFromAssetsLoader implements ResourceFinder {
                 // Проверяем, является ли папкой: пытаемся открыть как файл, если ошибка — значит папка
                 try (InputStream is = am.open(fullPath)) {
                     // Если открылось — это файл
-                    fileList.add(fullPath);
+                    fileList.add(fullPath.replaceFirst(Consts.luaBuildInScripts+File.separator, ""));
                 } catch (IOException e) {
                     // Если не открылось — вероятно, папка, рекурсивно обходим
                     fileList.addAll(walk(fullPath));

@@ -1,5 +1,7 @@
 package com.doktorthe2nd.min.net;
 
+import com.doktorthe2nd.min.types.MapContainer;
+
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
@@ -13,7 +15,7 @@ import java.util.Map;
 
 public class MessagePackSerializer {
 
-    public static byte[] serializeMap(Map<String, Object> map) throws IOException {
+    public static byte[] serializeMap(Map<Object, Object> map) throws IOException {
         try (MessageBufferPacker packer = MessagePack.newDefaultBufferPacker()) {
             packMap(packer, map);
             return packer.toByteArray();
@@ -21,10 +23,10 @@ public class MessagePackSerializer {
     }
 
     // Рекурсивная упаковка Map
-    private static void packMap(MessageBufferPacker packer, Map<String, Object> map) throws IOException {
+    private static void packMap(MessageBufferPacker packer, Map<Object, Object> map) throws IOException {
         packer.packMapHeader(map.size());
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            packer.packString(entry.getKey());   // ключ всегда строка
+        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            packValue(packer, entry.getKey());   // ключ всегда строка БЫЛ БЫ ЕСЛИ БЫ НЕ ОТСТАЛЫЙ БЕКЕНД НА ТОЙ СТОРОНЕ
             packValue(packer, entry.getValue()); // упаковываем значение любого типа
         }
     }
@@ -53,7 +55,10 @@ public class MessagePackSerializer {
         } else if (value instanceof Map) {
             // Вложенный словарь – рекурсивный вызов
             @SuppressWarnings("unchecked")
-            Map<String, Object> nestedMap = (Map<String, Object>) value;
+            Map<Object, Object> nestedMap = (Map<Object, Object>) value;
+            packMap(packer, nestedMap);
+        } else if (value instanceof MapContainer) {
+            Map<Object, Object> nestedMap = ((MapContainer)value).getMap();
             packMap(packer, nestedMap);
         } else if (value instanceof List) {
             // Упаковка списка (массива)
@@ -69,17 +74,17 @@ public class MessagePackSerializer {
         }
     }
 
-    public static Map<String, Object> deserializeMap(byte[] data) throws IOException {
+    public static Map<Object, Object> deserializeMap(byte[] data) throws IOException {
         try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(data)) {
             return unpackMap(unpacker);
         }
     }
 
-    private static Map<String, Object> unpackMap(MessageUnpacker unpacker) throws IOException {
+    private static Map<Object, Object> unpackMap(MessageUnpacker unpacker) throws IOException {
         int size = unpacker.unpackMapHeader();
-        Map<String, Object> map = new HashMap<>(size);
+        Map<Object, Object> map = new HashMap<>(size);
         for (int i = 0; i < size; i++) {
-            String key = unpacker.unpackString();
+            Object key = unpackValue(unpacker);
             Object value = unpackValue(unpacker);
             map.put(key, value);
         }

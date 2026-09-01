@@ -14,14 +14,15 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Connection {
-    private static final BlockingQueue<Pair<Pair<Integer, Map<String, Object>>, OnReply>> out_queue = new ArrayBlockingQueue<>(Consts.max_queue_length);
+    private static final BlockingQueue<Pair<Pair<Integer, Map<Object, Object>>, OnReply>> out_queue = new ArrayBlockingQueue<>(Consts.max_queue_length);
     private static final AtomicBoolean running = new AtomicBoolean(true);
     private static Thread thread;
 
     private static final ConcurrentMap<Integer, OnReply> onRequestMap = new ConcurrentHashMap<>();
 
-    protected static OnReply getFromMap(int seq) {
+    protected static OnReply popFromMap(int seq) {
         OnReply lambda = onRequestMap.get(seq);
+        onRequestMap.remove(seq);
         if (lambda == null) return DefinedReplies::process;
         return lambda;
     }
@@ -32,7 +33,7 @@ public class Connection {
             try {
                 SocketCnt.connect(Consts.server.first, Consts.server.second);
                 while (running.get()) {
-                    Pair<Pair<Integer, Map<String, Object>>, OnReply> pair = out_queue.take();
+                    Pair<Pair<Integer, Map<Object, Object>>, OnReply> pair = out_queue.take();
                     int seq = SocketCnt.send(pair.first.first, pair.first.second);
                     if (pair.second != null) onRequestMap.put(seq, pair.second);
                 }
@@ -68,7 +69,7 @@ public class Connection {
      * @param pair pair of opcode and payload
      * @param lambda lambda to call on reply
      */
-    public static void sendRequest(Pair<Integer, Map<String, Object>> pair, OnReply lambda) {
+    public static void sendRequest(Pair<Integer, Map<Object, Object>> pair, OnReply lambda) {
         try {
             out_queue.add(Pair.create(pair, lambda));
         } catch (IllegalStateException e) {
@@ -81,37 +82,37 @@ public class Connection {
      * @param payload packet payload
      * @param lambda lambda to call on reply
      */
-    public static void sendRequest(int opcode, Map<String, Object> payload, OnReply lambda) {
+    public static void sendRequest(int opcode, Map<Object, Object> payload, OnReply lambda) {
         sendRequest(Pair.create(opcode, payload), lambda);
     }
     /**
      * Send packet and do nothing
      * @param pair pair of opcode and payload
      */
-    public static void sendNoReply(Pair<Integer, Map<String, Object>> pair) {
-        sendRequest(pair, null);
+    public static void sendNoReply(Pair<Integer, Map<Object, Object>> pair) {
+        sendRequest(pair, packet->{});
     }
     /**
      * Send packet and do nothing
      * @param opcode packet opcode
      * @param payload packet payload
      */
-    public static void sendNoReply(int opcode, Map<String, Object> payload) {
-        sendRequest(Pair.create(opcode, payload), null);
+    public static void sendNoReply(int opcode, Map<Object, Object> payload) {
+        sendRequest(Pair.create(opcode, payload), packet->{});
     }
     /**
      * Send packet and process reply in DefinedReplies::process
      * @param pair pair of opcode and payload
      */
-    public static void sendAutoReply(Pair<Integer, Map<String, Object>> pair) {
-        sendRequest(pair, DefinedReplies::process);
+    public static void sendAutoReply(Pair<Integer, Map<Object, Object>> pair) {
+        sendRequest(pair, null);
     }
     /**
      * Send packet and process reply in DefinedReplies::process
      * @param opcode packet opcode
      * @param payload packet payload
      */
-    public static void sendAutoReply(int opcode, Map<String, Object> payload) {
-        sendRequest(Pair.create(opcode, payload), DefinedReplies::process);
+    public static void sendAutoReply(int opcode, Map<Object, Object> payload) {
+        sendRequest(Pair.create(opcode, payload), null);
     }
 }

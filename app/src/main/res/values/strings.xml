@@ -12,4 +12,7 @@
     <string name="auth_enter_phone">Enter phone:</string>
     <string name="auth_enter_code">Enter code from SMS:</string>
     <string name="auth_enter_password">Your account has 2fa. Enter password:</string>
+
+    <!--> CHAT SCREEN <-->
+    <string name="chat_enter_message">Enter message…</string>
 </resources>

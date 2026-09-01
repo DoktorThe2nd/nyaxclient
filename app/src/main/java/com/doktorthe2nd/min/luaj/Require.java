@@ -1,67 +1,57 @@
 package com.doktorthe2nd.min.luaj;
 
-import android.util.Pair;
+import com.doktorthe2nd.min.Consts;
+import com.doktorthe2nd.min.luaj.loaders.LuaFromImportedLoader;
+import com.doktorthe2nd.min.luaj.loaders.LuaFromTrustedLoader;
 
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
 import java.io.InputStream;
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-public class Require extends OneArgFunction {
-    private final LuaTable loaded = new LuaTable();
-    private final ArrayDeque<Pair<List<String>, Boolean>> allowed_stack = new ArrayDeque<>();
-    private final Globals sandbox;
-    private final Globals trusted;
-
+class Require extends OneArgFunction {
     private static final LuaFromTrustedLoader TRUSTED_LOADER = new LuaFromTrustedLoader();
     private static final LuaFromImportedLoader IMPORTED_LOADER = new LuaFromImportedLoader();
 
-    public Require(Globals sandbox, Globals trusted) {
-        this.sandbox = sandbox;
-        this.trusted = trusted;
+    private final boolean skip_check;
+    private final List<String> allowed;
+    private final ExecutableScript parent;
+
+    public Require(ExecutableScript parent, boolean skip_check) {
+        this(parent, new ArrayList<>(), skip_check);
+    }
+    public Require(ExecutableScript parent, List<String> allowed) {
+        this(parent, allowed, false);
     }
 
-    public void allowedPush(List<String> list, boolean restricted) {
-        allowed_stack.push(Pair.create(list, restricted));
+    public Require(ExecutableScript parent, List<String> allowed, boolean skip_check) {
+        this.allowed = allowed;
+        this.skip_check = skip_check;
+        this.parent = parent;
     }
-    public void allowedPop() {
-        allowed_stack.pop();
+
+    private static String locateAndGive(String module) {
+        String path = module.replace('.', '/') + ".lua";
+        InputStream trusted_fis = TRUSTED_LOADER.findResource(path);
+        if (trusted_fis != null) return Consts.readInputStream(trusted_fis);
+        InputStream sandbox_fis = IMPORTED_LOADER.findResource(path);
+        if (sandbox_fis != null) return Consts.readInputStream(sandbox_fis);
+        return null;
     }
 
     @Override
     public LuaValue call(LuaValue arg) {
-        String moduleName = arg.checkjstring();
-        Pair<List<String>, Boolean> allowed = allowed_stack.peek();
-        if (allowed == null) allowed = Pair.create(List.of(), true);
-        if (allowed.second && !allowed.first.contains(moduleName))
-            return LuaValue.error("Module '"+moduleName+"' is not allowed (you forgot to add it to metadata?)");
-        LuaValue cached = loaded.get(moduleName);
-        if (!cached.isnil()) return cached;
-        String relativePath = moduleName.replace('.', '/') + ".lua";
-
-        InputStream sandbox_fis = IMPORTED_LOADER.findResource(relativePath);
-        if (sandbox_fis != null) {
-            Script script = new Script(ScriptEngine.readInputStream(sandbox_fis));
-            LuaValue result = script.loadAndCall(sandbox);
-            if (result.isnil()) result = LuaValue.TRUE;
-            loaded.set(moduleName, result);
-            return result;
-        }
-
-        InputStream trusted_fis = TRUSTED_LOADER.findResource(relativePath);
-        if (trusted_fis != null) {
-            Script script = new Script(ScriptEngine.readInputStream(trusted_fis), true);
-            LuaValue result = script.loadAndCall(trusted);
-            if (result.isnil()) result = LuaValue.TRUE;
-            loaded.set(moduleName, result);
-            return result;
-        }
-
-        return LuaValue.error("Module '"+moduleName+"' not found");
+        String module = arg.checkjstring();
+        if (!skip_check && !allowed.contains(module))
+            throw parent.exception("'"+module+"' is not allowed (you forgot to add it to metadata?)");
+        if (ExecutableScript.cache_has_module(module))
+            return ExecutableScript.from_cache(module);
+        String data = locateAndGive(module);
+        if (data == null)
+            throw parent.exception("'"+module+"' not found");
+        ExecutableScript script = ExecutableScript.of(parent.parent, new Script(module, data));
+        return ExecutableScript.run_with_cache(script);
     }
 }
