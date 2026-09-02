@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.doktorthe2nd.min"
+    namespace = "com.doktorthe2nd.nyax"
     compileSdk {
         version = release(37)
     }

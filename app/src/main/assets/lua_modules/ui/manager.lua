@@ -8,7 +8,7 @@
 
 local M = {}
 
-local builder = api:findClass('com.doktorthe2nd.min.luajobjs.UIBuilder')
+local builder = api:findClass('com.doktorthe2nd.nyax.luajobjs.UIBuilder')
 
 function M.setLayout(layout) return builder:setContentView(layout) end
 
