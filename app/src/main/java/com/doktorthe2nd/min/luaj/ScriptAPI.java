@@ -9,4 +9,5 @@ public interface ScriptAPI {
     Context getAppContext();
     Activity getActivity();
     boolean isActivityAlive();
+    Class<?> findClass(String name) throws ClassNotFoundException;
 }

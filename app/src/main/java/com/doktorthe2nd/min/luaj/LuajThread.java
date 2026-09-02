@@ -40,6 +40,9 @@ public class LuajThread {
         thread.interrupt();
     }
 
+    public void callEvent(String event_name) {
+        engine.push_event(event_name, LuaValue.NIL);
+    }
     public void callEvent(String event_name, Varargs args) {
         engine.push_event(event_name, args);
     }
@@ -52,21 +55,21 @@ public class LuajThread {
         LuaFromAssetsLoader assetsLoader = new LuaFromAssetsLoader();
         LuaFromImportedLoader importedLoader = new LuaFromImportedLoader();
 
+        System.out.println("Lua searching for built-in modules...");
         List<String> assets_paths = assetsLoader.walk();
-        List<String> imported_paths = importedLoader.walk();
-
         for (String path : assets_paths) {
-            System.out.println("Built-in script loading: "+path);
             String module = path.replace('/', '.');
             if (module.endsWith(".lua")) module = module.substring(0, module.length()-4);
-            System.out.println("corresponds to module '"+module+"'");
+            System.out.println("File "+path+" (module '"+module+"')");
             Events.runModule(module);
         }
+        
+        System.out.println("Lua searching for imported modules...");
+        List<String> imported_paths = importedLoader.walk();
         for (String path : imported_paths) {
-            System.out.println("Imported script loading: "+path);
             String module = path.replace('/', '.');
             if (module.endsWith(".lua")) module = module.substring(0, module.length()-4);
-            System.out.println("corresponds to module '"+module+"'");
+            System.out.println("File "+path+" (module '"+module+"')");
             Events.runModule(module);
         }
     }

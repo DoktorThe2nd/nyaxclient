@@ -39,9 +39,11 @@ public class Events {
             @Override
             public Varargs invoke(Varargs args) {
                 if (args.narg() < 1) throw new LuaException("RunModule: Got no module name");
-                String scr = findScript(args.arg1().checkjstring());
-                if (scr == null) throw new LuaException("RunModule: Module '"+args.arg1().toString()+"' not found");
-                ExecutableScript executableScript = ExecutableScript.of(engine, new Script(args.arg1().checkjstring(), scr));
+                String name = args.arg1().checkjstring();
+                System.out.println("RunModule got '"+name+"'");
+                String scr = findScript(name);
+                if (scr == null) throw new LuaException("RunModule: Module '"+name+"' not found");
+                ExecutableScript executableScript = ExecutableScript.of(engine, new Script(name, scr));
                 return ExecutableScript.run_with_cache(executableScript);
             }
         });

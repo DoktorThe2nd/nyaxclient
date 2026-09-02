@@ -1,4 +1,4 @@
-package com.doktorthe2nd.min.types;
+package com.doktorthe2nd.min.types.stored;
 
 public class Stored<T> {
     private T object;

@@ -12,6 +12,13 @@ local EventGen = require('events.event_generator')
 
 -- events list
 
+function M.NullEvent()
+    return {
+        name = function() return "NullEvent" end,
+        call = function(...) end,
+        subscribe = function(fun) end
+    }
+end -- Does nothing. Subscriptions and calls are ignored.
 M.Startup = EventGen.generate_wrapped_noncallable(EventGen.namespace.STARTUP) -- Called on app startup. Non-callable. (Call will generate error)
 
 -- events list

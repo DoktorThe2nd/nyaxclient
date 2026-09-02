@@ -3,11 +3,10 @@ package com.doktorthe2nd.min;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.Toast;
 
+import com.doktorthe2nd.min.luaj.Events;
 import com.doktorthe2nd.min.luaj.LuajThread;
 import com.doktorthe2nd.min.luaj.ScriptAPI;
-import com.doktorthe2nd.min.luajobjs.UIBuilder;
 import com.doktorthe2nd.min.modules.MReporter;
 
 import org.luaj.vm2.LuaValue;
@@ -44,6 +43,11 @@ public class MainActivity extends Activity {
         public boolean isActivityAlive() {
             return !weakDead();
         }
+
+        @Override
+        public Class<?> findClass(String name) throws ClassNotFoundException  {
+            return Class.forName(name, true, this.getClass().getClassLoader());
+        }
     });
 
     @Override
@@ -64,19 +68,10 @@ public class MainActivity extends Activity {
         runOnUi = this::runOnUiThread;
         weakActivity = new WeakReference<>(this);
 
-        try {
-            setContentView(R.layout.connecting);
+        setContentView(R.layout.luaj_startup);
 
-            var layout = UIBuilder.makeLayout(false);
-            layout.addView(UIBuilder.makeText("test 1234"));
-            layout.addView(UIBuilder.makeButton("test", "none", LuaValue.NIL));
-            if (!UIBuilder.setContentView(layout)) Toast.makeText(this, "shit", Toast.LENGTH_SHORT).show();
-
-            /*luajThread.start();
-            luajThread.loadScripts();
-            luajThread.callEvent(Events.STARTUP, LuaValue.NIL);*/
-        } catch (RuntimeException e) {
-            MReporter.makeErrorScreen(this, e.getMessage());
-        }
+        luajThread.start();
+        luajThread.loadScripts();
+        luajThread.callEvent(Events.STARTUP);
     }
 }

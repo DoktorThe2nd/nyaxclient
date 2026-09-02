@@ -8,10 +8,17 @@
 
 local M = {}
 
-local builder = luajava.newInstance('com.doktorthe2nd.min.luajobjs.UIBuilder')
+local builder = api:findClass('com.doktorthe2nd.min.luajobjs.UIBuilder')
 
-function M.getBuilder()
-    return builder
+function M.makeText(text) return builder:makeText(text) end
+function M.makeButton(label, onClickFunction)
+    local btn = builder:makeButton(label)
+    local listener = luajava.createProxy("android.view.View$OnClickListener", {
+        onClick = onClickFunction
+    })
+    btn:setOnClickListener(listener)
+    return btn
 end
+function M.makeLayout(horizontal) return builder:makeLayout(horizontal) end
 
 return M

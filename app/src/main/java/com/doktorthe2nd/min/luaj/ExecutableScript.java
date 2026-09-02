@@ -58,15 +58,8 @@ class ExecutableScript {
             envMeta.set(LuaValue.INDEX, parent.restricted_globals);
         }
 
-        env.set(MetaMethods.REQUIRE, require);
-        env.set(MetaMethods.GET_MODULE_ID, new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                return LuaValue.valueOf(module_id);
-            }
-        });
+        env.set("require", require);
 
-        MetaMethods.applyLock(env, envMeta);
         env.setmetatable(envMeta);
 
         if (meta.require_trusted) this.script = parent.trusted_globals.load(data, module_id, env);

@@ -12,6 +12,7 @@ import org.luaj.vm2.lib.CoroutineLib;
 import org.luaj.vm2.lib.MathLib;
 import org.luaj.vm2.lib.PackageLib;
 import org.luaj.vm2.lib.StringLib;
+import org.luaj.vm2.lib.TableLib;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
@@ -88,6 +89,7 @@ class LuajEngine {
     public LuajEngine(@NotNull ScriptAPI api) {
         restricted_globals.load(new BaseLib());
         restricted_globals.load(new PackageLib());
+        restricted_globals.load(new TableLib());
         restricted_globals.load(new Bit32Lib());
         restricted_globals.load(new StringLib());
         restricted_globals.load(new MathLib());

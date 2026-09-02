@@ -1,4 +1,4 @@
-package com.doktorthe2nd.min.types;
+package com.doktorthe2nd.min.types.stored;
 
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
@@ -17,6 +17,30 @@ class PrefStore {
             STORE = new RxPreferenceDataStoreBuilder(MainActivity.appContext, "pref_store").build();
         }
         return STORE;
+    }
+
+    public static void storeFloat(String key, float value) {
+        Preferences.Key<Float> prefKey = PreferencesKeys.floatKey(key);
+
+        getStore().updateDataAsync(prefsIn -> {
+            MutablePreferences mutablePrefs = prefsIn.toMutablePreferences();
+            mutablePrefs.set(prefKey, value);
+            return Single.just(mutablePrefs);
+        });
+    }
+
+    public static Float readFloat(String key) {
+        Preferences.Key<Float> prefKey = PreferencesKeys.floatKey(key);
+
+        Single<Float> value = getStore().data()
+                .firstOrError()
+                .map(prefs -> prefs.get(prefKey));
+
+        try {
+            return value.blockingGet();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static void storeByteArray(String key, byte[] value) {

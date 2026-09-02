@@ -8,9 +8,13 @@
 
 local M = {}
 
-local System = luajava.bindClass('java.lang.System')
+local System = luajava.bindClass("java.lang.System")
+local Toast = luajava.bindClass("android.widget.Toast")
 function M.print(line)
     System.out:println("Lua debug: " .. line)
+end
+function M.toast(line)
+    Toast:makeText(api:getAppContext(), line, Toast.LENGTH_SHORT):show()
 end
 
 return M
