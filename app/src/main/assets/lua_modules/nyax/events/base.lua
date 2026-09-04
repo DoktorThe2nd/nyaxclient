@@ -1,25 +1,26 @@
 -- METADATA
--- NAME Basic events
--- DESC Module for accessing basic events, such as Startup
+-- NAME Events base
+-- DESC Module for accessing events safely and a couple of basic events
 -- AUTHOR DoktorThe2nd
 -- VERSION built-in
--- REQUIRE events.event_generator
+-- REQUIRE nyax.events.event_generator
 -- METADATA
 
 local M = {}
 
-local EventGen = require('events.event_generator')
+local event_gen = require('nyax.events.event_generator')
 
 -- events list
 
-function M.NullEvent()
+M.Events = {}
+
+function M.Events.NullEvent()
     return {
-        name = function() return "NullEvent" end,
         call = function(...) end,
         subscribe = function(fun) end
     }
 end -- Does nothing. Subscriptions and calls are ignored.
-M.Startup = EventGen.generate_wrapped_noncallable(EventGen.namespace.STARTUP) -- Called on app startup. Non-callable. (Call will generate error)
+M.Events.Startup = event_gen.generate_wrapped_noncallable(event_gen.namespace.STARTUP) -- Called on app startup. Non-callable. (Call will generate error)
 
 -- events list
 

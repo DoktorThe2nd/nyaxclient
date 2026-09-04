@@ -1,6 +1,8 @@
 package com.doktorthe2nd.nyax.net;
 
 import com.doktorthe2nd.nyax.Consts;
+import com.doktorthe2nd.nyax.MainActivity;
+import com.doktorthe2nd.nyax.luaj.Events;
 import com.doktorthe2nd.nyax.modules.MReporter;
 import com.doktorthe2nd.nyax.net.exceptions.ExceedsBufferException;
 
@@ -27,6 +29,7 @@ public class SocketListener {
 
     public void start() {
         readerThread = new Thread(() -> {
+            MainActivity.luajThread.callEvent(Events.SOCKET_OPENED);
             try (InputStream in = socket.getInputStream()) {
                 System.out.println("SocketListener started");
                 byte[] buffer = new byte[Consts.max_compressed_size];
@@ -56,6 +59,7 @@ public class SocketListener {
             } finally {
                 running.set(false);
                 System.out.println("SocketListener stopped");
+                MainActivity.luajThread.callEvent(Events.SOCKET_CLOSED);
             }
         });
         readerThread.setDaemon(true);

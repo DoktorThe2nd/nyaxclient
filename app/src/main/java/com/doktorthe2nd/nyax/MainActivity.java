@@ -5,8 +5,13 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.doktorthe2nd.nyax.luaj.Events;
+import com.doktorthe2nd.nyax.luaj.LuaProxyFactory;
 import com.doktorthe2nd.nyax.luaj.LuajThread;
 import com.doktorthe2nd.nyax.luaj.ScriptAPI;
+import com.doktorthe2nd.nyax.net.OnReply;
+
+import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.lang.ref.WeakReference;
 
@@ -43,7 +48,21 @@ public class MainActivity extends Activity {
 
         @Override
         public Class<?> findClass(String name) throws ClassNotFoundException  {
-            return Class.forName(name, true, this.getClass().getClassLoader());
+            try {
+                return Class.forName("com.doktorthe2nd.nyax.luajobjs."+name, true, this.getClass().getClassLoader());
+            } catch (ClassNotFoundException e) {
+                return Class.forName(name, true, this.getClass().getClassLoader());
+            }
+        }
+
+        @Override
+        public Class<?> findPacketClass(String name) throws ClassNotFoundException {
+            return Class.forName("com.doktorthe2nd.nyax.types.packets."+name, true, this.getClass().getClassLoader());
+        }
+
+        @Override
+        public OnReply onReplyProxy(LuaFunction function) {
+            return packet -> function.call(CoerceJavaToLua.coerce(packet));
         }
     });
 

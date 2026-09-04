@@ -59,28 +59,46 @@ public class MapContainer {
         return map.get(key);
     }
     public String getString(Object key) {
-        return (String)get(key);
+        try {
+            return (String)get(key);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
     public Integer getInt(Object key) {
-        return (Integer)get(key);
+        try {
+            return (Integer)get(key);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
     public Long getLong(Object key) {
-        return (Long)get(key);
+        try {
+            return (Long)get(key);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 
     public Object getOr(Object key, Object fallback) {
-        Object ret = map.get(key);
+        Object ret = get(key);
         if (ret == null) return fallback;
         return ret;
     }
     public String getStringOr(Object key, String fallback) {
-        return (String)getOr(key, fallback);
+        String ret = getString(key);
+        if (ret == null) return fallback;
+        return ret;
     }
     public int getIntOr(Object key, int fallback) {
-        return (int)getOr(key, fallback);
+        Integer ret = getInt(key);
+        if (ret == null) return fallback;
+        return ret;
     }
     public long getLongOr(Object key, long fallback) {
-        return (long)getOr(key, fallback);
+        Long ret = getLong(key);
+        if (ret == null) return fallback;
+        return ret;
     }
 
     /**

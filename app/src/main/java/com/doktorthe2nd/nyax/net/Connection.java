@@ -3,8 +3,12 @@ package com.doktorthe2nd.nyax.net;
 import android.util.Pair;
 
 import com.doktorthe2nd.nyax.Consts;
+import com.doktorthe2nd.nyax.MainActivity;
+import com.doktorthe2nd.nyax.luaj.Events;
 import com.doktorthe2nd.nyax.net.exceptions.QueueIsFullException;
 import com.doktorthe2nd.nyax.net.exceptions.SocketException;
+
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -15,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Connection {
     private static final BlockingQueue<Pair<Pair<Integer, Map<Object, Object>>, OnReply>> out_queue = new ArrayBlockingQueue<>(Consts.max_queue_length);
-    private static final AtomicBoolean running = new AtomicBoolean(true);
+    private static final AtomicBoolean running = new AtomicBoolean(false);
     private static Thread thread;
 
     private static final ConcurrentMap<Integer, OnReply> onRequestMap = new ConcurrentHashMap<>();
@@ -23,11 +27,15 @@ public class Connection {
     protected static OnReply popFromMap(int seq) {
         OnReply lambda = onRequestMap.get(seq);
         onRequestMap.remove(seq);
-        if (lambda == null) return DefinedReplies::process;
+        if (lambda == null) return packet -> {
+            MainActivity.luajThread.callEvent(Events.UNHANDLED_PACKET, CoerceJavaToLua.coerce(packet));
+        };
         return lambda;
     }
 
     public static void start() {
+        if (running.get()) thread.interrupt();
+        running.set(true);
         thread = new Thread(() -> {
             System.out.println("Connection thread started");
             try {
@@ -59,11 +67,6 @@ public class Connection {
         return running.get();
     }
 
-    @FunctionalInterface
-    public interface OnReply {
-        void apply(Packet packet);
-    }
-
     /**
      * Send packet and call lambda on reply
      * @param pair pair of opcode and payload
@@ -90,7 +93,7 @@ public class Connection {
      * @param pair pair of opcode and payload
      */
     public static void sendNoReply(Pair<Integer, Map<Object, Object>> pair) {
-        sendRequest(pair, packet->{});
+        sendRequest(pair, null);
     }
     /**
      * Send packet and do nothing
@@ -98,21 +101,6 @@ public class Connection {
      * @param payload packet payload
      */
     public static void sendNoReply(int opcode, Map<Object, Object> payload) {
-        sendRequest(Pair.create(opcode, payload), packet->{});
-    }
-    /**
-     * Send packet and process reply in DefinedReplies::process
-     * @param pair pair of opcode and payload
-     */
-    public static void sendAutoReply(Pair<Integer, Map<Object, Object>> pair) {
-        sendRequest(pair, null);
-    }
-    /**
-     * Send packet and process reply in DefinedReplies::process
-     * @param opcode packet opcode
-     * @param payload packet payload
-     */
-    public static void sendAutoReply(int opcode, Map<Object, Object> payload) {
         sendRequest(Pair.create(opcode, payload), null);
     }
 }

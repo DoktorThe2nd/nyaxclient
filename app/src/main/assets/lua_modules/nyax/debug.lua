@@ -8,8 +8,8 @@
 
 local M = {}
 
-local System = luajava.bindClass("java.lang.System")
-local Toast = luajava.bindClass("android.widget.Toast")
+local System = api:findClass('java.lang.System')
+local Toast = api:findClass('android.widget.Toast')
 function M.print(line)
     System.out:println("Lua debug: " .. line)
 end

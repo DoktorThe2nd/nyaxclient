@@ -12,7 +12,6 @@ M.namespace = events_ids
 function M.generate(name)
     local _name = name
     return {
-        name = function() return _name end,
         call = function(...) events_api:call(_name, ...) end,
         subscribe = function(fun) events_api:subscribe(_name, fun) end
     }
@@ -27,7 +26,6 @@ end
 function M.generate_noncallable(name)
     local _name = name
     return {
-        name = function() return _name end,
         call = function(...) error(_name.." event is not callable") end,
         subscribe = function(fun) events_api:subscribe(_name, fun) end
     }

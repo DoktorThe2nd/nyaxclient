@@ -14,7 +14,10 @@ import java.io.InputStream;
 import java.util.UUID;
 
 public class Events {
-    public static final String STARTUP = "startup";
+    public static final String STARTUP = "nyax:startup";
+    public static final String SOCKET_OPENED = "nyax:socket_opened";
+    public static final String SOCKET_CLOSED = "nyax:socket_closed";
+    public static final String UNHANDLED_PACKET = "nyax:unhandled_packet";
 
     private static final String _RUN_MODULE = UUID.randomUUID().toString();
 

@@ -65,7 +65,7 @@ public class MSession {
         Connection.sendRequest(OpcodeTable.auth, payload, packet -> {
             if (MReporter.toastIfError(packet)) return;
             if (packet.payload.containsKey("passwordChallenge")) {
-                authTrackId = ((Map<String, Object>)packet.payload.get("passwordChallenge")).get("trackId").toString();
+                authTrackId = ((Map<Object, Object>)packet.payload.get("passwordChallenge")).get("trackId").toString();
                 onAnswer.run();
                 return;
             }

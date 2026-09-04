@@ -8,8 +8,8 @@
 
 local M = {}
 
-local Builder = api:findClass('com.doktorthe2nd.nyax.luajobjs.UIBuilder')
-local theme = require('ui.theme')
+local UIBuilder = api:findClass('UIBuilder')
+local theme = require('nyax.ui.theme')
 
 M.newGradientDrawable = theme.newGradientDrawable
 M.getStatusBarHeight = theme.getStatusBarHeight
@@ -19,12 +19,12 @@ M.setWrapContent = theme.setWrapContent
 M.Gravity = api:findClass('android.view.Gravity')
 
 function M.makeText(text)
-    local view = Builder:makeText(text)
+    local view = UIBuilder:makeText(text)
     theme.applyTheme(view, "text")
     return view
 end
 function M.makeButton(label, onClickFunction)
-    local view = Builder:makeButton(label)
+    local view = UIBuilder:makeButton(label)
     local listener = luajava.createProxy("android.view.View$OnClickListener", {
         onClick = onClickFunction
     })
@@ -33,12 +33,12 @@ function M.makeButton(label, onClickFunction)
     return view
 end
 function M.makeContainer(horizontal)
-    local view = Builder:makeLayout(horizontal)
+    local view = UIBuilder:makeLayout(horizontal)
     theme.applyTheme(view, "container")
     return view
 end
 function M.makeRoot(horizontal)
-    local view = Builder:makeLayout(horizontal)
+    local view = UIBuilder:makeLayout(horizontal)
     theme.applyTheme(view, "root")
     return view
 end

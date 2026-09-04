@@ -8,12 +8,12 @@
 
 local M = {}
 
-local builder = api:findClass('com.doktorthe2nd.nyax.luajobjs.UIBuilder')
+local UIBuilder = api:findClass('UIBuilder')
 
-function M.newGradientDrawable() return builder:newGradientDrawable() end
-function M.getStatusBarHeight() return builder:getStatusBarHeight() end
-function M.setWrapContent(view) return builder:setWrapContent(view) end
-function M.setMargin(view, left, top, right, bottom) return builder:setMargin(view, left, top, right, bottom) end
+function M.newGradientDrawable() return UIBuilder:newGradientDrawable() end
+function M.getStatusBarHeight() return UIBuilder:getStatusBarHeight() end
+function M.setWrapContent(view) return UIBuilder:setWrapContent(view) end
+function M.setMargin(view, left, top, right, bottom) return UIBuilder:setMargin(view, left, top, right, bottom) end
 
 function M.standard()
     local radius = 10
