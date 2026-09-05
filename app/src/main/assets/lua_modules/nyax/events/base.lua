@@ -3,12 +3,12 @@
 -- DESC Module for accessing events safely and a couple of basic events
 -- AUTHOR DoktorThe2nd
 -- VERSION built-in
--- REQUIRE nyax.events.event_generator
+-- REQUIRE nyax.events.generator
 -- METADATA
 
 local M = {}
 
-local event_gen = require('nyax.events.event_generator')
+local event_gen = require('nyax.events.generator')
 
 -- events list
 

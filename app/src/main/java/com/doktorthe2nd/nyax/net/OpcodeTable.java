@@ -1,13 +1,5 @@
 package com.doktorthe2nd.nyax.net;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
-All protocol operation codes.
-Naming follows the server-side convention.
-Use {@link #name(int)} to get a human-readable label for logging.
-*/
 public final class OpcodeTable {
     private OpcodeTable() {}
 
@@ -223,6 +215,7 @@ public final class OpcodeTable {
     public static final int storiesDelete = 218;                      // Удаление историй
     public static final int storiesGetByStoryId = 220;                // Истории по ID
 
+    /*
     // ── Name mapping ──────────────────────────────────────────────────
 
     private static final Map<Integer, String> NAMES = new HashMap<>();
@@ -419,13 +412,7 @@ public final class OpcodeTable {
         NAMES.put(storiesGetByStoryId, "STORIES_GET_BY_STORY_ID");
     }
 
-    /**
-     * Returns a human-readable name for the given opcode.
-     *
-     * @param opcode the operation code
-     * @return the name, or {@code "UNKNOWN(opcode)"} if not found
-     */
     public static String name(int opcode) {
         return NAMES.getOrDefault(opcode, "UNKNOWN(" + opcode + ")");
-    }
+    }*/
 }

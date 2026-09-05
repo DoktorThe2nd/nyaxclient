@@ -2,6 +2,7 @@ package com.doktorthe2nd.nyax.luaj;
 
 import com.doktorthe2nd.nyax.luaj.loaders.LuaFromAssetsLoader;
 import com.doktorthe2nd.nyax.luaj.loaders.LuaFromImportedLoader;
+import com.doktorthe2nd.nyax.net.Packet;
 
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaValue;
@@ -72,5 +73,9 @@ public class LuajThread {
             System.out.println("File "+path+" (module '"+module+"')");
             Events.runModule(module);
         }
+    }
+
+    public void runOnReply(LuaFunction function, Packet packet) {
+        Events.runOnReply(function, packet);
     }
 }

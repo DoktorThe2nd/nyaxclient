@@ -9,7 +9,7 @@
 local M = {}
 
 function M.setCallsSeed(seed)
-    api:findClass('com.doktorthe2nd.nyax.Consts').callsSeed = seed
+    api:findGlobalClass('com.doktorthe2nd.nyax.Consts').callsSeed = seed
 end
 
 function M.newSessionInit()

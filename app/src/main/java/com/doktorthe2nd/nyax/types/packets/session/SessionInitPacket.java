@@ -16,10 +16,10 @@ public class SessionInitPacket extends SendablePacket {
     @Override
     public MapContainer serialize() {
         return super.serialize()
-                .putc("mt_instanceid", Consts.instanceId)
+                .putc("mt_instanceid", Consts.currentSession.mt_instanceid)
                 .putc("userAgent", Consts.getUserAgent())
                 .putc("clientSessionId", Consts.clientSessionId)
-                .putc("deviceId", Consts.deviceId);
+                .putc("deviceId", Consts.currentSession.deviceId);
     }
 
     @Override

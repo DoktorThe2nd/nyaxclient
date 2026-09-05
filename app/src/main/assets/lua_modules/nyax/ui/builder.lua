@@ -16,7 +16,13 @@ M.getStatusBarHeight = theme.getStatusBarHeight
 M.setMargin = theme.setMargin
 M.setWrapContent = theme.setWrapContent
 
-M.Gravity = api:findClass('android.view.Gravity')
+M.Gravity = api:findGlobalClass('android.view.Gravity')
+M.TextAlign = {
+    INHERIT = 0,
+    LEFT = 2,
+    RIGHT = 3,
+    CENTER = 4
+}
 
 function M.makeText(text)
     local view = UIBuilder:makeText(text)

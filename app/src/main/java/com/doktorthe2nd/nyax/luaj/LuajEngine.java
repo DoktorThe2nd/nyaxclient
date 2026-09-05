@@ -46,7 +46,7 @@ class LuajEngine {
     }
 
     /**
-     * Thread-safe. Should be accessible from anywhere
+     * Probably thread-safe. Should be accessible from anywhere
      * @param event_name name of event to subscribe
      * @param function Lua function to call on event
      */
@@ -70,7 +70,10 @@ class LuajEngine {
                 Event event = events.take();
                 var subscribers = this.subscribers.get(event.name);
                 if (subscribers == null) continue;
-                for (var item : subscribers) item.invoke(event.args);
+                for (var item : subscribers) {
+                    if (event.args == null) item.invoke(LuaValue.NIL);
+                    else item.invoke(event.args);
+                }
             }
         } catch (InterruptedException e) {
             running.set(false);

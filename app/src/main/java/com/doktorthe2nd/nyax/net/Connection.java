@@ -27,9 +27,8 @@ public class Connection {
     protected static OnReply popFromMap(int seq) {
         OnReply lambda = onRequestMap.get(seq);
         onRequestMap.remove(seq);
-        if (lambda == null) return packet -> {
-            MainActivity.luajThread.callEvent(Events.UNHANDLED_PACKET, CoerceJavaToLua.coerce(packet));
-        };
+        if (lambda == null) return packet ->
+                MainActivity.luajThread.callEvent(Events.UNHANDLED_PACKET, CoerceJavaToLua.coerce(packet));
         return lambda;
     }
 

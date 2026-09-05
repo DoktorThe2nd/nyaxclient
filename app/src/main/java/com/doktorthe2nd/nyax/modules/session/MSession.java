@@ -10,14 +10,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MSession {
-    public static void loadFromSave() {
+    /*public static void loadFromSave() {
         Consts.currentSession = SessionData.loadSession();
         Consts.deviceId = Consts.currentSession.deviceId;
         Consts.instanceId = Consts.currentSession.mt_instanceid;
-    }
+    }*/
 
     public static void init(Runnable onAnswer) {
-        Map<Object, Object> payload = new HashMap<>(){{
+        /*Map<Object, Object> payload = new HashMap<>(){{
             put("mt_instanceid", Consts.instanceId);
             put("userAgent", Consts.getUserAgent());
             put("clientSessionId", Consts.clientSessionId);
@@ -30,7 +30,7 @@ public class MSession {
                 onAnswer.run();
             }
             else MReporter.toastError("callsSeed not instanceof Long");
-        });
+        });*/
     }
     public static String normalizePhone(String phone) {
         String normal = phone.replaceAll("[^0-9]", "");
@@ -77,7 +77,7 @@ public class MSession {
             put("trackId", authTrackId);
             put("password", password);
         }};
-        Connection.sendRequest(OpcodeTable.authLoginCheckPassword, payload, packet -> {
+        /*Connection.sendRequest(OpcodeTable.authLoginCheckPassword, payload, packet -> {
             if (MReporter.toastIfError(packet)) return;
             SessionData data = new SessionData();
             data.deviceId = Consts.deviceId;
@@ -89,6 +89,6 @@ public class MSession {
             SessionData.saveSession(data);
             Consts.currentSession = data;
             onAnswer.run();
-        });
+        });*/
     }
 }

@@ -2,9 +2,10 @@ package com.doktorthe2nd.nyax;
 
 import android.util.Pair;
 
-import com.doktorthe2nd.nyax.modules.session.SessionData;
+import com.doktorthe2nd.nyax.types.SessionData;
 import com.doktorthe2nd.nyax.net.ApkBuildFingerprint;
 import com.doktorthe2nd.nyax.net.FingerprintGenerator;
+import com.doktorthe2nd.nyax.types.stored.Stored;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -14,10 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Consts {
-    public static final boolean THROUGH_DEBUG_PROXY = false;
-
-    public static final Pair<String, Integer> server =
-            THROUGH_DEBUG_PROXY ? Pair.create("192.168.0.108", 6767) : Pair.create("api.oneme.ru", 443);
+    public static final Pair<String, Integer> server = Pair.create("api.oneme.ru", 443);
     public static final String osVersion = "Android 14";
     public static final String deviceName = "Redmi Note 12";
 
@@ -34,11 +32,20 @@ public class Consts {
     public static final int buildNumber = 6729;
 
     // auto set
-    public static SessionData currentSession; // из MSession.loadSession
+    private static SessionData getSessionOrSpoof() {
+        if (SessionData.isSessionSaved(sessionSlot.get()))
+            return SessionData.loadSession(sessionSlot.get());
+        if (SessionData.isSessionSaved(0)) {
+            sessionSlot.set(0);
+            return SessionData.loadSession(0);
+        }
+        return SessionData.spoofedSession();
+    }
+
+    public static Stored<Integer> sessionSlot = Stored.makeInteger("session_slot", 0);
+    public static SessionData currentSession = getSessionOrSpoof(); // из MSession.loadSession
     public static long callsSeed = 0; // из ответа на sessionInit
     public static final int clientSessionId = UUID.randomUUID().hashCode();
-    public static String instanceId = UUID.randomUUID().toString();
-    public static String deviceId = UUID.randomUUID().toString();
 
     public static Map<String, Object> getUserAgent() {
         Map<String, Object> userAgent = new HashMap<>();
@@ -58,7 +65,7 @@ public class Consts {
 
     public static byte[] getFingerprint() {
         FingerprintGenerator fingerprintGenerator = getFingerprintGenerator();
-        byte[] fingerprint = fingerprintGenerator.generateFingerprint(appVersion, deviceId, callsSeed);
+        byte[] fingerprint = fingerprintGenerator.generateFingerprint(appVersion, currentSession.deviceId, callsSeed);
         if (fingerprint == null) throw new RuntimeException("Unable to generate fingerprint");
         return fingerprint;
     }

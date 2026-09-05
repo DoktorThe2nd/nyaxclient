@@ -8,11 +8,11 @@
 
 local M = {}
 
-local event_gen = require('nyax.events.event_generator')
+local event_gen = require('nyax.events.generator')
 
 M.Events = {}
-M.Events.Connected = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_OPENED)
-M.Events.Disconnected = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_CLOSED)
+M.Events.SocketOpened = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_OPENED)
+M.Events.SocketClosed = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_CLOSED)
 M.Events.UnhandledPacketReceived = event_gen.generate_wrapped_noncallable(event_gen.namespace.UNHANDLED_PACKET)
 
 function M.isError(packet)

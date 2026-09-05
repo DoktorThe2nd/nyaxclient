@@ -4,7 +4,7 @@ import com.doktorthe2nd.nyax.net.Connection;
 import com.doktorthe2nd.nyax.net.OnReply;
 
 /**
- * Abstract class for packets with {@link #send(Connection.OnReply)} and {@link #sendIgnoreReply()} functions.
+ * Abstract class for packets with {@link #send(OnReply)} and {@link #sendIgnoreReply()} functions.
  * Inheritors should implement {@link #getOpcode()}. This function will be called when packet sending invoked.
  */
 public abstract class SendablePacket extends PacketBase {

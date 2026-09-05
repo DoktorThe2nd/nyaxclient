@@ -8,8 +8,8 @@
 
 local M = {}
 
-local System = api:findClass('java.lang.System')
-local Toast = api:findClass('android.widget.Toast')
+local System = api:findGlobalClass('java.lang.System')
+local Toast = api:findGlobalClass('android.widget.Toast')
 function M.print(line)
     System.out:println("Lua debug: " .. line)
 end

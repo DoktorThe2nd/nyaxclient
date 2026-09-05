@@ -22,14 +22,8 @@ public class SocketCnt {
             return;
         }
         try {
-            if (Consts.THROUGH_DEBUG_PROXY) {
-                SOCKET = new Socket();
-                SOCKET.connect(new InetSocketAddress(host, port));
-            }
-            else {
-                SOCKET = SSLSocketFactory.getDefault().createSocket(host, port);
-                ((SSLSocket)SOCKET).startHandshake();
-            }
+            SOCKET = SSLSocketFactory.getDefault().createSocket(host, port);
+            ((SSLSocket)SOCKET).startHandshake();
             startListener();
         } catch (Exception e) {
             throw new SocketException("Connection (connect) Exception: "+e.getMessage());
@@ -68,9 +62,6 @@ public class SocketCnt {
     private static int c_seq = -1;
     private static int nextSeq() {
         c_seq = (c_seq + 1) % 65536;
-        return c_seq;
-    }
-    public static int currentSeq() {
         return c_seq;
     }
 
