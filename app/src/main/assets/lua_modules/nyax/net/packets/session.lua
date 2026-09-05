@@ -8,6 +8,10 @@
 
 local M = {}
 
+function M.setCallsSeed(seed)
+    api:findClass('com.doktorthe2nd.nyax.Consts').callsSeed = seed
+end
+
 function M.newSessionInit()
     return luajava.new(api:findPacketClass('session.SessionInitPacket')) end
 function M.newAuthCodeRequest(phone)

@@ -1,18 +1,4 @@
 <resources>
-    <!--> GENERAL <-->
     <string name="app_name">NYAX</string>
-    <string name="loading">Loading…</string>
-    <string name="connecting">Connecting…</string>
-
-    <!--> AUTH SCREEN <-->
-    <string name="auth_subtext">Custom MAX client\nUnder GNU license</string>
-    <string name="auth_request_code">Request code</string>
-    <string name="auth_send_code">Send code</string>
-    <string name="auth_send_password">Log in</string>
-    <string name="auth_enter_phone">Enter phone:</string>
-    <string name="auth_enter_code">Enter code from SMS:</string>
-    <string name="auth_enter_password">Your account has 2fa. Enter password:</string>
-
-    <!--> CHAT SCREEN <-->
-    <string name="chat_enter_message">Enter message…</string>
+    <string name="plugin_error">Luaj error occurred\nProbably some plugin cause this</string>
 </resources>

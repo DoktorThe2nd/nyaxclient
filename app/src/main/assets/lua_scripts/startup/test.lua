@@ -13,8 +13,10 @@ local debug = require('nyax.debug')
 
 events_base.subscribe(events_base.Events.Startup, function(...)
     net_cnt.start()
-    net_base.sendPacket(net_session.newSessionInit(), function(packet)
-        debug.print("gibberish")
-        debug.print(packet:toString())
+    local sessionPacket = net_session.newSessionInit()
+    net_base.sendPacket(sessionPacket, function(packet)
+        local answer = net_base.deserialize(sessionPacket, packet)
+        if net_base.isError(answer) then error(answer:getMessage()) end
+        net_session.setCallsSeed(answer:getCallsSeed())
         end)
 end)

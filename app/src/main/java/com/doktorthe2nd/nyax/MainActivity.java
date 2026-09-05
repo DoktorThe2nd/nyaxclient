@@ -11,9 +11,11 @@ import com.doktorthe2nd.nyax.luaj.ScriptAPI;
 import com.doktorthe2nd.nyax.net.OnReply;
 
 import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.lang.ref.WeakReference;
+import java.util.UUID;
 
 public class MainActivity extends Activity {
     public interface RunOnUi {
@@ -61,8 +63,10 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public OnReply onReplyProxy(LuaFunction function) {
-            return packet -> function.call(CoerceJavaToLua.coerce(packet));
+        public OnReply makeOnReply(LuaFunction function) {
+            String replyId = UUID.randomUUID().toString();
+            luajThread.addEventSubscriber(replyId, function);
+            return packet -> luajThread.callEvent(replyId, CoerceJavaToLua.coerce(packet));
         }
     });
 

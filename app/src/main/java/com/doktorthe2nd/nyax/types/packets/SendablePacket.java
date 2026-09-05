@@ -7,7 +7,7 @@ import com.doktorthe2nd.nyax.net.OnReply;
  * Abstract class for packets with {@link #send(Connection.OnReply)} and {@link #sendIgnoreReply()} functions.
  * Inheritors should implement {@link #getOpcode()}. This function will be called when packet sending invoked.
  */
-public abstract class SendablePacket extends EmptyPacket {
+public abstract class SendablePacket extends PacketBase {
     /** Should return opcode from OpcodeTable. */
     public abstract int getOpcode();
 

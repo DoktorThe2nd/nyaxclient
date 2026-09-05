@@ -51,6 +51,10 @@ public class Packet {
     public boolean isError() { return cmd == CmdType.error; }
     public boolean isPush() { return cmd == CmdType.push; }
 
+    public String getMessage() {
+        return payload.getOrDefault("message", "no message").toString();
+    }
+
     @NonNull
     public String toString() {
         return "Packet(ver="+api+" cmd="+cmd+" seq="+seq+" opcode="+opcode+" payload="+payload.toString()+")";

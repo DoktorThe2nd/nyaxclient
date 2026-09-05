@@ -6,7 +6,7 @@ import com.doktorthe2nd.nyax.types.MapContainer;
 import com.doktorthe2nd.nyax.types.packets.SendablePacket;
 
 public class AuthRequestPacket extends SendablePacket {
-    private final String phone;
+    private String phone;
     private String authToken;
 
     public String getAuthToken() {
@@ -16,6 +16,7 @@ public class AuthRequestPacket extends SendablePacket {
         return phone;
     }
 
+    public AuthRequestPacket() { markNotSerializable(); }
     public AuthRequestPacket(String phone) {
         this.phone = phone;
     }

@@ -5,14 +5,15 @@ import com.doktorthe2nd.nyax.types.MapContainer;
 import com.doktorthe2nd.nyax.types.packets.SendablePacket;
 
 public class AuthCodePacket extends SendablePacket {
-    private final String code;
-    private final String authToken;
+    private String code;
+    private String authToken;
 
     private String trackId;
     public String getTrackId() {
         return trackId;
     }
 
+    public AuthCodePacket() { markNotSerializable(); }
     public AuthCodePacket(String authToken, String code) {
         this.authToken = authToken;
         this.code = code;

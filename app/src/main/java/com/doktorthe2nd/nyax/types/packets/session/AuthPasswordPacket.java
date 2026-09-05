@@ -7,9 +7,10 @@ import com.doktorthe2nd.nyax.types.packets.SendablePacket;
 import org.jetbrains.annotations.Contract;
 
 public class AuthPasswordPacket extends SendablePacket {
-    private final String trackId;
-    private final String password;
+    private String trackId;
+    private String password;
 
+    public AuthPasswordPacket() { markNotSerializable(); }
     public AuthPasswordPacket(String trackId, String password) {
         this.trackId = trackId;
         this.password = password;

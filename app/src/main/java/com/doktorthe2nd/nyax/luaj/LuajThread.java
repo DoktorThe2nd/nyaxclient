@@ -23,10 +23,10 @@ public class LuajThread {
         thread = new Thread(() -> {
             try {
                 engine.loop();
-            } catch (LuaException e) {
+            } catch (Exception e) {
                 LuajErrorScreen.set(e.getMessage());
             }
-        });
+        }, "LuajThread");
         thread.setDaemon(true);
     }
     

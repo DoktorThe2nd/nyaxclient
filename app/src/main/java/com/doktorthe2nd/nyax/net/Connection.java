@@ -51,7 +51,7 @@ public class Connection {
                 SocketCnt.disconnect();
                 System.out.println("Connection thread stopped");
             }
-        });
+        }, "Connection");
         thread.setDaemon(true);
         thread.start();
     }

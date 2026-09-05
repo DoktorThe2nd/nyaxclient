@@ -13,5 +13,5 @@ public interface ScriptAPI {
     boolean isActivityAlive();
     Class<?> findClass(String name) throws ClassNotFoundException;
     Class<?> findPacketClass(String name) throws ClassNotFoundException;
-    OnReply onReplyProxy(LuaFunction function);
+    OnReply makeOnReply(LuaFunction function);
 }

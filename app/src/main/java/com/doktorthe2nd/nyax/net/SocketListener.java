@@ -61,7 +61,7 @@ public class SocketListener {
                 System.out.println("SocketListener stopped");
                 MainActivity.luajThread.callEvent(Events.SOCKET_CLOSED);
             }
-        });
+        }, "SocketListener");
         readerThread.setDaemon(true);
         readerThread.start();
     }

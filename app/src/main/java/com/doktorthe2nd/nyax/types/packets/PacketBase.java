@@ -3,13 +3,21 @@ package com.doktorthe2nd.nyax.types.packets;
 import com.doktorthe2nd.nyax.types.MapContainer;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * Packet with no data and no opcode.
  * Contains basic functions.
  */
-public class EmptyPacket {
+public class PacketBase {
+    private boolean notSerializable = false;
+
+    /** Mark this packet not serializable. */
+    public void markNotSerializable() {
+        notSerializable = true;
+    }
+
     /** Returns empty {@link MapContainer} (because no data present).
      * <p> This function should be overridden to add more data to it. <p>
      * Example: <pre>{@code
@@ -21,6 +29,7 @@ public class EmptyPacket {
      * }
      * }</pre> */
     public MapContainer serialize() {
+        if (notSerializable) throw new RuntimeException("Serialize called on packet marked not serializable");
         return new MapContainer();
     }
 
@@ -40,6 +49,9 @@ public class EmptyPacket {
      * }</pre> */
     public boolean deserialize(MapContainer data) {
         return data != null;
+    }
+    public boolean deserialize(Map<Object, Object> data) {
+        return deserialize(MapContainer.of(data));
     }
 
     /** Returns true if all given objects are not null, false otherwise. */
