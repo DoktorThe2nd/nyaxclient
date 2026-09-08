@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.androidx.recyclerview)
     implementation("androidx.datastore:datastore-preferences-rxjava2:1.2.1")
     implementation("org.msgpack:msgpack-core:0.9.12")

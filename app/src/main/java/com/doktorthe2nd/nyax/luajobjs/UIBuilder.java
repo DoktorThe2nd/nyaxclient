@@ -1,26 +1,25 @@
 package com.doktorthe2nd.nyax.luajobjs;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+
 import com.doktorthe2nd.nyax.MainActivity;
-import com.doktorthe2nd.nyax.types.stored.Stored;
 
 public class UIBuilder {
-    //public static Typeface font = null; // null = default
-    public static final Stored<Float> TEXT_SIZE = Stored.makeFloat("ui_textSize", 16f);
-
     public static int getStatusBarHeight() {
         int result = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -67,10 +66,21 @@ public class UIBuilder {
         }
     }
 
-    public static LinearLayout makeLayout(boolean horizontal) {
-        LinearLayout lay = new LinearLayout(MainActivity.appContext);
+    public static CardView makeCardView() {
+        return new CardView(MainActivity.appContext);
+    }
+
+    public static UILinearLayout makeLayout(boolean horizontal, int divider_size) {
+        UILinearLayout lay = new UILinearLayout(MainActivity.appContext);
         if (horizontal) lay.setOrientation(LinearLayout.HORIZONTAL);
         else lay.setOrientation(LinearLayout.VERTICAL);
+        if (divider_size != 0) {
+            GradientDrawable div = new GradientDrawable();
+            div.setColor(Color.TRANSPARENT);
+            div.setSize(divider_size, divider_size);
+            lay.setDividerDrawable(div);
+            lay.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+        }
         return lay;
     }
 
@@ -80,9 +90,17 @@ public class UIBuilder {
         return btn;
     }
 
-    public static TextView makeText(String text) {
-        TextView tv = new TextView(MainActivity.appContext);
+    public static UITextView makeText(String text) {
+        UITextView tv = new UITextView(MainActivity.appContext);
         tv.setText(text);
         return tv;
+    }
+
+    public static EditText makeEditText(String hint, String text, int type) {
+        EditText et = new EditText(MainActivity.appContext);
+        et.setInputType(type);
+        et.setText(text);
+        et.setHint(hint);
+        return et;
     }
 }

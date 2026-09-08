@@ -19,4 +19,5 @@
         android:layout_height="wrap_content"
         android:layout_margin="10sp"
         android:text="(error text)" />
+
 </LinearLayout>

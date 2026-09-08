@@ -23,6 +23,13 @@ M.TextAlign = {
     RIGHT = 3,
     CENTER = 4
 }
+M.InputType = api:findGlobalClass('android.text.InputType')
+
+function M.makeEditText(hint, text, type)
+    local view = UIBuilder:makeEditText(hint, text, type)
+    theme.applyTheme(view, "edit_text")
+    return view
+end
 
 function M.makeText(text)
     local view = UIBuilder:makeText(text)
@@ -31,22 +38,48 @@ function M.makeText(text)
 end
 function M.makeButton(label, onClickFunction)
     local view = UIBuilder:makeButton(label)
+    theme.applyTheme(view, "button")
     local listener = luajava.createProxy("android.view.View$OnClickListener", {
         onClick = onClickFunction
     })
     view:setOnClickListener(listener)
-    theme.applyTheme(view, "button")
     return view
 end
-function M.makeContainer(horizontal)
-    local view = UIBuilder:makeLayout(horizontal)
+
+function addVarargsViews(view, ...)
+    local args = table.pack(...)
+    for i = 1, args.n do
+        view:addView(args[i])
+    end
+end
+
+function M.makeCardView(...)
+    local view = UIBuilder:makeCardView()
+    theme.applyTheme(view, "cardview")
+    addVarargsViews(view, ...)
+    return view
+end
+
+function M.makeContainer(horizontal, divider_size, ...)
+    local view = UIBuilder:makeLayout(horizontal, divider_size)
     theme.applyTheme(view, "container")
+    addVarargsViews(view, ...)
     return view
 end
-function M.makeRoot(horizontal)
-    local view = UIBuilder:makeLayout(horizontal)
+function M.makeRoot(horizontal, divider_size, ...)
+    local view = UIBuilder:makeLayout(horizontal, divider_size)
     theme.applyTheme(view, "root")
+    addVarargsViews(view, ...)
     return view
+end
+
+-- convenience
+
+M.container = M.makeContainer
+M.root = M.makeRoot
+M.card = M.makeCardView
+function M.cardContainer(horizontal, divider_size, ...)
+    return M.makeCardView(M.makeContainer(horizontal, divider_size, ...))
 end
 
 return M

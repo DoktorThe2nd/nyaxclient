@@ -1,7 +1,6 @@
 -- METADATA
 -- NAME Session data
 -- DESC Full access to sessions, including tokens and your phone number
--- DESC (potentially unsafe)
 -- AUTHOR DoktorThe2nd
 -- VERSION built-in
 -- REQUIRE-TRUSTED
@@ -10,7 +9,9 @@
 local M = {}
 
 local SessionData = api:findClass('SessionData')
-local Consts = api:findClass('com.doktorthe2nd.nyax.Consts')
+local Consts = api:findGlobalClass('com.doktorthe2nd.nyax.Consts')
+
+function M.normalizePhone(phone) return "+"..phone:gsub("%D", "") end
 
 function M.getCurrentSessionSlot() return Consts.sessionSlot:get() end
 function M.getCurrentSession() return Consts.currentSession end
