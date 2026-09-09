@@ -47,8 +47,8 @@ public class Consts {
     public static long callsSeed = 0; // из ответа на sessionInit
     public static final int clientSessionId = UUID.randomUUID().hashCode();
 
-    public static Map<String, Object> getUserAgent() {
-        Map<String, Object> userAgent = new HashMap<>();
+    public static Map<Object, Object> getUserAgent() {
+        Map<Object, Object> userAgent = new HashMap<>();
         userAgent.put("deviceType", "ANDROID");
         userAgent.put("appVersion", Consts.appVersion);
         userAgent.put("osVersion", Consts.osVersion);

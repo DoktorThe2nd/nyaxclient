@@ -18,7 +18,7 @@ public class PacketBase {
         notSerializable = true;
     }
 
-    /** Returns empty {@link MapContainer} (because no data present).
+    /** Returns empty {@link MapContainer} (because no data present), or throws RuntimeException if packet marked not serializable ({@link #markNotSerializable()})
      * <p> This function should be overridden to add more data to it. <p>
      * Example: <pre>{@code
      * @Override

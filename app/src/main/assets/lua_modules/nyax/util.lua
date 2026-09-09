@@ -1,4 +1,5 @@
 -- METADATA
+-- REQUIRE-TRUSTED
 -- METADATA
 
 local M = {}
@@ -16,7 +17,7 @@ function readNilTrackable(value)
     return value
 end
 
-function M.emptyTrackable()
+function M.newEmptyTrackable()
     return {
         _value = nil,
         set = function(self, value)
@@ -40,7 +41,7 @@ end
 
 function M.oneTimeInit(fun)
     local table = {
-        _result = M.emptyTrackable(),
+        _result = M.newEmptyTrackable(),
         _invoke = function(self)
             self._result:set(fun())
         end
@@ -52,6 +53,14 @@ function M.oneTimeInit(fun)
         end
     })
     return table
+end
+
+M.Coercers = api:findClass('Utils.Coercer')
+local Utils = api:findClass('Utils')
+
+function M.tableToJList(tbl, coercer)
+    if type(tbl) ~= "table" then error("util.tableToJList expected table, got "..type(tbl)) end
+    return Utils:coerceToArrayList(tbl, coercer)
 end
 
 return M

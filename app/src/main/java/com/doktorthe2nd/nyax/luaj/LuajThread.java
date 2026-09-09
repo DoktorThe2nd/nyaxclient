@@ -1,5 +1,7 @@
 package com.doktorthe2nd.nyax.luaj;
 
+import android.view.View;
+
 import com.doktorthe2nd.nyax.luaj.loaders.LuaFromAssetsLoader;
 import com.doktorthe2nd.nyax.luaj.loaders.LuaFromImportedLoader;
 import com.doktorthe2nd.nyax.net.Packet;
@@ -77,5 +79,8 @@ public class LuajThread {
 
     public void runOnReply(LuaFunction function, Packet packet) {
         Events.runOnReply(function, packet);
+    }
+    public void runOnClick(LuaFunction function, View view) {
+        Events.runOnClick(function, view);
     }
 }

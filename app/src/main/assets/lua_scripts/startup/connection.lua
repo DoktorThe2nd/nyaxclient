@@ -33,6 +33,6 @@ function onConnected()
     if not session.getCurrentSession():hasToken() then
         events_gen.generate("nyax:startAuthFlow").call()
     else
-        -- authed
+        events_base.call(session.Events.LoginSuccess)
     end
 end

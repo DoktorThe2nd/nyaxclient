@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.doktorthe2nd.min"
+        applicationId = "com.doktorthe2nd.nyax"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

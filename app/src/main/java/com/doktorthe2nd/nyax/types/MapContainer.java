@@ -1,5 +1,7 @@
 package com.doktorthe2nd.nyax.types;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,27 +105,30 @@ public class MapContainer {
 
     /**
      * Get Object:Object map by key
-     * @param key self-explanatory
+     * @param key key
      * @return map if got one, null if not
      */
+    @SuppressWarnings("unchecked")
     public Map<Object, Object> getMap(Object key) {
         if (get(key) instanceof Map<?,?>) return (Map<Object, Object>)get(key);
         return null;
     }
     /**
      * Get list of Object by key
-     * @param key self-explanatory
+     * @param key key
      * @return list if got one, null if not
      */
+    @SuppressWarnings("unchecked")
     public ArrayList<Object> getList(Object key) {
         if (get(key) instanceof ArrayList<?>) return (ArrayList<Object>)get(key);
         return null;
     }
     /**
      * Get list of Object:Object maps by key
-     * @param key self-explanatory
+     * @param key key
      * @return list of maps if got one, null if not
      */
+    @SuppressWarnings("unchecked")
     public ArrayList<Map<Object, Object>> getMapsArray(Object key) {
         if (!(get(key) instanceof ArrayList<?>)) return null;
         ArrayList<?> maps = (ArrayList<?>)get(key);
@@ -133,10 +138,33 @@ public class MapContainer {
     }
     /**
      * Same as {@link #getMap(Object)}, but wraps it with MapContainer
-     * @param key self-explanatory
+     * @param key key
      * @return MapContainer, empty if not found
      */
     public MapContainer getc(Object key) {
         return new MapContainer(getMap(key));
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return toString(false);
+    }
+
+    @NonNull
+    public String toString(boolean recursive) {
+        StringBuilder sb = new StringBuilder("{");
+        for (var key : map.keySet()) {
+            var value = map.get(key);
+            if (value instanceof MapContainer && !recursive) {
+                sb.append(key).append("={MapContainer};");
+            }
+            else if (value instanceof Map<?, ?>) {
+                if (recursive) sb.append(key).append("=").append(MapContainer.of(value)).append(";");
+                else sb.append(key).append("={Map<>};");
+            }
+            else sb.append(key).append("=").append(value).append(";");
+        }
+        return sb.append("}").toString();
     }
 }

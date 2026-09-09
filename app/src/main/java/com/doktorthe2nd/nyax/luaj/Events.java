@@ -1,5 +1,7 @@
 package com.doktorthe2nd.nyax.luaj;
 
+import android.view.View;
+
 import com.doktorthe2nd.nyax.Consts;
 import com.doktorthe2nd.nyax.MainActivity;
 import com.doktorthe2nd.nyax.luaj.loaders.LuaFromAssetsLoader;
@@ -24,6 +26,7 @@ public class Events {
 
     private static final String _RUN_MODULE = UUID.randomUUID().toString();
     private static final String _RUN_ON_REPLY = UUID.randomUUID().toString();
+    private static final String _RUN_ON_CLICK = UUID.randomUUID().toString();
 
     /** Prefers built-in directories. Thread-safe. Runs module on next event cycle (not immediately) */
     protected static void runModule(String module) {
@@ -32,6 +35,9 @@ public class Events {
 
     protected static void runOnReply(LuaFunction function, Packet packet) {
         MainActivity.luajThread.callEvent(_RUN_ON_REPLY, LuaValue.varargsOf(function, CoerceJavaToLua.coerce(packet)));
+    }
+    protected static void runOnClick(LuaFunction function, View view) {
+        MainActivity.luajThread.callEvent(_RUN_ON_CLICK, LuaValue.varargsOf(function, CoerceJavaToLua.coerce(view)));
     }
 
     private static String findScript(String name) {
@@ -65,6 +71,15 @@ public class Events {
                 LuaFunction func = args.arg(1).checkfunction();
                 LuaValue packet = args.arg(2).checknotnil();
                 return func.call(packet);
+            }
+        });
+        engine.add_subscriber(_RUN_ON_CLICK, new VarArgFunction() {
+            @Override
+            public Varargs invoke(Varargs args) {
+                if (args.narg() < 2) throw new LuaException("RunOnClick: Got wrong number of args");
+                LuaFunction func = args.arg(1).checkfunction();
+                LuaValue view = args.arg(2).checknotnil();
+                return func.call(view);
             }
         });
     }

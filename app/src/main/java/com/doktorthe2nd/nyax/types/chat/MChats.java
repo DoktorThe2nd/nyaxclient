@@ -1,4 +1,4 @@
-package com.doktorthe2nd.nyax.modules.chat;
+package com.doktorthe2nd.nyax.types.chat;
 
 import com.doktorthe2nd.nyax.types.MapContainer;
 
@@ -20,7 +20,7 @@ public class MChats {
 
     public static void addFromLogin(List<Map<Object, Object>> list) {
         for (var chat_data : list) {
-            chats.add(Chat.fromLogin(MapContainer.of(chat_data)));
+            chats.add(Chat.fromData(MapContainer.of(chat_data)));
         }
     }
 }

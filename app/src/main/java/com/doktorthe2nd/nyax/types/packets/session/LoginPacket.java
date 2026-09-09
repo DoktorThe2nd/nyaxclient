@@ -13,7 +13,7 @@ public class LoginPacket extends SendablePacket {
 
     @Override
     public int getOpcode() {
-        return OpcodeTable.login;
+        return 0;
     }
 
     @Override
@@ -25,6 +25,6 @@ public class LoginPacket extends SendablePacket {
 
     @Override
     public MapContainer serialize() {
-        return super.serialize();
+        throw new RuntimeException("session.LoginPacket is not serializable. You probably meant sync.LoginPacket");
     }
 }

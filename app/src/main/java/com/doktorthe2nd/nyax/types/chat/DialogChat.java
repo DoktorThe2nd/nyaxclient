@@ -1,4 +1,4 @@
-package com.doktorthe2nd.nyax.modules.chat;
+package com.doktorthe2nd.nyax.types.chat;
 
 import com.doktorthe2nd.nyax.types.MapContainer;
 

@@ -1,10 +1,10 @@
-package com.doktorthe2nd.nyax.modules.chat;
+package com.doktorthe2nd.nyax.types.chat;
 
-import com.doktorthe2nd.nyax.types.MapContainer;
 import com.doktorthe2nd.nyax.modules.MReporter;
 import com.doktorthe2nd.nyax.modules.message.Message;
 import com.doktorthe2nd.nyax.net.Connection;
 import com.doktorthe2nd.nyax.net.OpcodeTable;
+import com.doktorthe2nd.nyax.types.MapContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,10 @@ public abstract class Chat {
     public abstract void init(MapContainer map);
 
     public void downloadMessagesBackwards(int count) {
-        downloadMessagesBackwards(count, lastMessage.time);
+        downloadMessagesBackwards(count, lastMessage);
+    }
+    public void downloadMessagesBackwards(int count, Message from) {
+        downloadMessagesBackwards(count, from.time);
     }
     public void downloadMessagesBackwards(int count, long from) {
         Connection.sendRequest(OpcodeTable.chatHistory, new HashMap<>(){{
@@ -46,7 +49,10 @@ public abstract class Chat {
             prependMessages(msgs);
         });
     }
-    /*public void downloadMessagesForwards(int count, long from) {
+    public void downloadMessagesForwards(int count, Message from) {
+        downloadMessagesForwards(count, from.time);
+    }
+    public void downloadMessagesForwards(int count, long from) {
         Connection.sendRequest(OpcodeTable.chatHistory, new HashMap<>(){{
             put("chatId", id);
             put("forward", count);
@@ -59,24 +65,27 @@ public abstract class Chat {
             put("itemType", "REGULAR");
             put("interactive", false);
         }}, packet -> {
+            if (MReporter.toastIfError(packet)) return;
             List<Message> msgs = new ArrayList<>();
             for (Map<Object, Object> msg_r_map : MapContainer.of(packet.payload).getMapsArray("messages")) {
                 msgs.add(Message.getFromData(MapContainer.of(msg_r_map)));
             }
-            add
+            addMessages(msgs);
         });
-    }*/
+    }
 
     public void prependMessages(List<Message> msgs) {
         messages.addAll(0, msgs);
         for (Message msg : msgs) {
-            messages_map.put(msg.id, msg);
+            if (messages_map.put(msg.id, msg) != null)
+                MReporter.toastError("Message duplication. Re-enter chat.");
         }
     }
     public void addMessages(List<Message> msgs) {
         messages.addAll(msgs);
         for (Message msg : msgs) {
-            messages_map.put(msg.id, msg);
+            if (messages_map.put(msg.id, msg) != null)
+                MReporter.toastError("Message duplication. Re-enter chat.");
         }
     }
     public void clear() {
@@ -85,18 +94,22 @@ public abstract class Chat {
     }
 
     public Message getMessageById(long id) {
-        return messages_map.get(id);
+        if (messages_map.containsKey(id)) return messages_map.get(id);
+        return null; // TODO: download message
     }
 
-    public static Chat fromLogin(MapContainer map) {
-        String type = map.getStringOr("type", "CHANNEL");
+    public static Chat fromData(Map<Object, Object> map) {
+        return fromData(MapContainer.of(map));
+    }
+    public static Chat fromData(MapContainer map) {
+        String type = map.getStringOr("type", "null");
         Chat chat;
 
         switch (type) {
             case "DIALOG": chat = new DialogChat(); break;
             case "CHANNEL": chat = new ChannelChat(); break;
             case "CHAT": chat = new GroupChat(); break;
-            default: throw new RuntimeException("Unknown chat type: " + type);
+            default: throw new RuntimeException("Unknown chat type " + type + " in: " + map);
         }
 
         chat.id = map.getLongOr("id", map.getLongOr("cid", 0));

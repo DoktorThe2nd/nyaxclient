@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.doktorthe2nd.nyax.luaj.Events;
 import com.doktorthe2nd.nyax.luaj.LuajThread;
@@ -66,6 +64,10 @@ public class MainActivity extends Activity {
 
         public OnReply makeOnReply(LuaFunction function) {
             return packet -> luajThread.runOnReply(function, packet);
+        }
+
+        public View.OnClickListener makeOnClick(LuaFunction function) {
+            return view -> luajThread.runOnClick(function, view);
         }
     });
 

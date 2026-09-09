@@ -18,5 +18,9 @@ function M.newAuthCodeRequest(phone)
     return luajava.new(api:findPacketClass('session.AuthRequestPacket'), phone) end
 function M.newAuthCodeSend(authToken, code)
     return luajava.new(api:findPacketClass('session.AuthCodePacket'), authToken, code) end
+function M.newAuthPasswordSend(trackId, password)
+    return luajava.new(api:findPacketClass('session.AuthPasswordPacket'), trackId, password) end
+function M.newLogin()
+    return luajava.new(api:findPacketClass('session.LoginPacket')) end
 
 return M

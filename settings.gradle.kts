@@ -23,5 +23,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "min"
+rootProject.name = "nyax"
 include(":app")

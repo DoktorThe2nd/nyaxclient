@@ -1,8 +1,8 @@
-package com.doktorthe2nd.nyax.modules.chat;
+package com.doktorthe2nd.nyax.types.chat;
 
 import com.doktorthe2nd.nyax.types.MapContainer;
 
-public class GroupChat extends Chat {
+public class ChannelChat extends Chat {
     private String title;
 
     @Override

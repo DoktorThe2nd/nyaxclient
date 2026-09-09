@@ -39,10 +39,7 @@ end
 function M.makeButton(label, onClickFunction)
     local view = UIBuilder:makeButton(label)
     theme.applyTheme(view, "button")
-    local listener = luajava.createProxy("android.view.View$OnClickListener", {
-        onClick = onClickFunction
-    })
-    view:setOnClickListener(listener)
+    view:setOnClickListener(api:makeOnClick(onClickFunction))
     return view
 end
 
@@ -51,6 +48,11 @@ function addVarargsViews(view, ...)
     for i = 1, args.n do
         view:addView(args[i])
     end
+end
+
+function M.makeRecyclerView(...)
+    local view = UIBuilder:makeRecyclerView()
+    return view
 end
 
 function M.makeCardView(...)

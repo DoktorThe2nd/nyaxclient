@@ -11,9 +11,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
@@ -84,6 +82,10 @@ public class UIBuilder {
         return lay;
     }
 
+    public static UIRecyclerView makeRecyclerView() {
+        return new UIRecyclerView(MainActivity.appContext);
+    }
+
     public static Button makeButton(String label) {
         Button btn = new Button(MainActivity.appContext);
         btn.setText(label);
@@ -96,8 +98,8 @@ public class UIBuilder {
         return tv;
     }
 
-    public static EditText makeEditText(String hint, String text, int type) {
-        EditText et = new EditText(MainActivity.appContext);
+    public static UIEditText makeEditText(String hint, String text, int type) {
+        UIEditText et = new UIEditText(MainActivity.appContext);
         et.setInputType(type);
         et.setText(text);
         et.setHint(hint);
