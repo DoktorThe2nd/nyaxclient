@@ -10,11 +10,17 @@ local M = {}
 
 local UIBuilder = api:findClass('UIBuilder')
 local theme = require('nyax.ui.theme')
+local util = require('nyax.util')
 
 M.newGradientDrawable = theme.newGradientDrawable
 M.getStatusBarHeight = theme.getStatusBarHeight
 M.setMargin = theme.setMargin
 M.setWrapContent = theme.setWrapContent
+
+function M.setFillSpace(view, horizontally, weight)
+    UIBuilder:setFillSpace(view, horizontally, weight)
+    return view
+end
 
 M.Gravity = api:findGlobalClass('android.view.Gravity')
 M.TextAlign = {
@@ -52,6 +58,10 @@ end
 
 function M.makeRecyclerView(...)
     local view = UIBuilder:makeRecyclerView()
+    local args = table.pack(...)
+    if args.n ~= 0 then
+        view:prepend(util.tableToJList(args, util.Coercers.VIEW))
+    end
     return view
 end
 

@@ -1,5 +1,6 @@
 package com.doktorthe2nd.nyax.luajobjs;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,10 @@ public class UIRecyclerView extends RecyclerView {
         adapter.move(from, to);
     }
 
+    public void clear() {
+        adapter.clear();
+    }
+
     private static class Holder extends ViewHolder {
         public Holder(Context context) {
             super(new FrameLayout(context));
@@ -67,6 +72,12 @@ public class UIRecyclerView extends RecyclerView {
 
     private static class Adapter extends RecyclerView.Adapter<Holder> {
         private final List<View> views = new ArrayList<>();
+
+        @SuppressLint("NotifyDataSetChanged")
+        public void clear() {
+            this.views.clear();
+            notifyDataSetChanged();
+        }
 
         public void insert(int idx, View view) {
             this.views.add(idx, view);

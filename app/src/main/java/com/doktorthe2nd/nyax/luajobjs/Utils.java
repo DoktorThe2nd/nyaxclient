@@ -7,9 +7,11 @@ import com.doktorthe2nd.nyax.types.MapContainer;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Utils {
     @FunctionalInterface
@@ -19,7 +21,7 @@ public class Utils {
         static <T,S> Coercer<T> cast(Coercer<S> source, Class<T> to) {
             return value -> {
                 S result = source.coerce(value);
-                if (!to.isInstance(result)) return null;
+                if (result == null || !to.isInstance(result)) return null;
                 return to.cast(result);
             };
         }
@@ -35,26 +37,27 @@ public class Utils {
         Coercer<Character> CHAR = LuaValue::tochar;
         Coercer<Short> SHORT = LuaValue::toshort;
         Coercer<View> VIEW = cast(USERDATA, View.class);
-        Coercer<Runnable> RUNNABLE = value -> {
+        Coercer<Runnable> FUNCTION = value -> {
             if (!value.isfunction()) return null;
             return value::call;
         };
         Coercer<Object> OBJECT = value -> {
-            if (value.isuserdata()) return USERDATA.coerce(value);
             if (value.isboolean()) return BOOLEAN.coerce(value);
             if (value.isint()) return INTEGER.coerce(value);
             if (value.isnumber()) return DOUBLE.coerce(value);
             if (value.isstring()) return STRING.coerce(value);
             if (value.islong()) return LONG.coerce(value);
-            if (value.isfunction()) return RUNNABLE.coerce(value);
-            return null;
+            if (value.isfunction()) return FUNCTION.coerce(value);
+            return USERDATA.coerce(value);
         };
     }
 
     public static <T> ArrayList<T> coerceToArrayList(LuaTable table, Coercer<T> coercer) {
         ArrayList<T> list = new ArrayList<>();
-        for (int i = 1; i <= table.length(); i++)
-            list.add(coercer.coerce(table.get(i)));
+        for (int i = 1; i <= table.length(); i++) {
+            var res = coercer.coerce(table.get(i));
+            if (res != null) list.add(res);
+        }
         return list;
     }
 
@@ -66,13 +69,23 @@ public class Utils {
             LuaValue new_key = pair.arg1();
             if (new_key.isnil()) break;
             LuaValue new_value = pair.arg(2);
-            map.put(key_coercer.coerce(new_key), value_coercer.coerce(new_value));
+            var jkey = key_coercer.coerce(new_key);
+            var jvalue = value_coercer.coerce(new_value);
+            if (jkey != null && jvalue != null) map.put(jkey, jvalue);
             key = new_key;
         }
         return map;
     }
 
     public static MapContainer coerceToMapContainer(LuaTable table) {
-        return MapContainer.of(coerceToHashMap(table, Coercer.USERDATA, Coercer.USERDATA));
+        return MapContainer.of(coerceToHashMap(table, Coercer.OBJECT, Coercer.OBJECT));
+    }
+
+    public static LuaTable coerceList(List<Object> list) {
+        LuaTable table = new LuaTable();
+        for (int i = 0; i < list.size(); i++)
+            table.set(i+1, CoerceJavaToLua.coerce(list.get(i)));
+        table.set("n", list.size());
+        return table;
     }
 }

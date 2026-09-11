@@ -1,4 +1,4 @@
-package com.doktorthe2nd.nyax.modules.message;
+package com.doktorthe2nd.nyax.types.message;
 
 import com.doktorthe2nd.nyax.types.MapContainer;
 
@@ -10,17 +10,16 @@ public class MessageText extends Message {
     public List<String> elements = new ArrayList<>();
     public List<String> attaches = new ArrayList<>();
 
+    public MessageText(MapContainer map) {
+        super(map);
+        text = map.getStringOr("text", "<null msg text>");
+    }
+
     @Override
     public MapContainer serialize() {
         return super.serialize()
                 .putc("text", text)
                 .putc("elements", elements)
                 .putc("attaches", attaches);
-    }
-
-    public static MessageText produce(String text) {
-        MessageText msg = new MessageText();
-        msg.text = text;
-        return msg;
     }
 }

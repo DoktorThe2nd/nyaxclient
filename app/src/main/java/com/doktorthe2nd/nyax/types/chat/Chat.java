@@ -1,15 +1,17 @@
 package com.doktorthe2nd.nyax.types.chat;
 
 import com.doktorthe2nd.nyax.modules.MReporter;
-import com.doktorthe2nd.nyax.modules.message.Message;
 import com.doktorthe2nd.nyax.net.Connection;
 import com.doktorthe2nd.nyax.net.OpcodeTable;
 import com.doktorthe2nd.nyax.types.MapContainer;
+import com.doktorthe2nd.nyax.types.message.Message;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class Chat {
     private final Map<Long, Message> messages_map = new HashMap<>(); // optimization
@@ -44,7 +46,7 @@ public abstract class Chat {
             if (MReporter.toastIfError(packet)) return;
             List<Message> msgs = new ArrayList<>();
             for (Map<Object, Object> msg_map : MapContainer.of(packet.payload).getMapsArray("messages")) {
-                msgs.add(Message.getFromData(MapContainer.of(msg_map)));
+                msgs.add(Message.attempts(MapContainer.of(msg_map)));
             }
             prependMessages(msgs);
         });
@@ -68,7 +70,7 @@ public abstract class Chat {
             if (MReporter.toastIfError(packet)) return;
             List<Message> msgs = new ArrayList<>();
             for (Map<Object, Object> msg_r_map : MapContainer.of(packet.payload).getMapsArray("messages")) {
-                msgs.add(Message.getFromData(MapContainer.of(msg_r_map)));
+                msgs.add(Message.attempts(MapContainer.of(msg_r_map)));
             }
             addMessages(msgs);
         });
@@ -98,10 +100,7 @@ public abstract class Chat {
         return null; // TODO: download message
     }
 
-    public static Chat fromData(Map<Object, Object> map) {
-        return fromData(MapContainer.of(map));
-    }
-    public static Chat fromData(MapContainer map) {
+    public static Chat attempts(MapContainer map) {
         String type = map.getStringOr("type", "null");
         Chat chat;
 
@@ -114,9 +113,23 @@ public abstract class Chat {
 
         chat.id = map.getLongOr("id", map.getLongOr("cid", 0));
         chat.lastChangeTime = map.getLongOr("modified", 0);
-        chat.lastMessage = Message.getFromData(map.getc("lastMessage"));
+        chat.lastMessage = Message.attempts(map.getc("lastMessage"));
         chat.init(map);
 
         return chat;
+    }
+
+    public static List<Chat> sortByTime(List<Chat> list) {
+        list.sort(Comparator.comparingLong(v -> v.lastChangeTime));
+        return list;
+    }
+
+    public static List<Chat> fromData(List<Map<Object, Object>> data) {
+        return data.stream().map(v ->
+                Chat.attempts(MapContainer.of(v))).collect(Collectors.toList());
+    }
+
+    public static List<Chat> emptyList() {
+        return new ArrayList<>();
     }
 }

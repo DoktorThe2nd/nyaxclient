@@ -7,7 +7,7 @@ import com.doktorthe2nd.nyax.net.OpcodeTable;
 import java.util.HashMap;
 
 public class MMessages {
-    public static void sendMessage(Message message, long chat_id, boolean silent) {
+    /*public static void sendMessage(Message message, long chat_id, boolean silent) {
         Connection.sendRequest(OpcodeTable.msgSend, new HashMap<>(){{
             put("chatId", chat_id);
             put("message", message.serialize());
@@ -16,5 +16,5 @@ public class MMessages {
             if (MReporter.toastIfError(packet)) return;
             MReporter.toast("Message sent!");
         });
-    }
+    }*/
 }

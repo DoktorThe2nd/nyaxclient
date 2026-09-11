@@ -13,7 +13,7 @@ local ui_manager = require('nyax.ui.manager')
 
 function baseRoot()
     return ui.root(false, 20,
-        ui.makeText("NYAX"):align(ui.TextAlign.CENTER):scale(1.2),
+        ui.makeText("NYAX"):align(ui.TextAlign.CENTER):scale(2),
         ui.makeText("Custom open-source MAX client"):align(ui.TextAlign.CENTER)
     ):gravity(ui.Gravity.CENTER)
 end

@@ -54,6 +54,8 @@ public class PacketBase {
         return deserialize(MapContainer.of(data));
     }
 
+    /** Returns true. */
+    public static boolean allNotNull() {return true;}
     /** Returns true if all given objects are not null, false otherwise. */
     public static boolean allNotNull(Object... objects) {
         return Arrays.stream(objects).noneMatch(Objects::isNull);

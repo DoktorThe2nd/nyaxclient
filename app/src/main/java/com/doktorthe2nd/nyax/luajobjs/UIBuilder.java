@@ -63,6 +63,22 @@ public class UIBuilder {
             marginParams.setMargins(left, top, right, bottom);
         }
     }
+    public static void setFillSpace(View view, boolean horizontally, float weight) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)view.getLayoutParams();
+        if (params == null) {
+            view.setLayoutParams(
+                    new LinearLayout.LayoutParams(
+                            horizontally ? 0 : -1,
+                            horizontally ? -2 : 0,
+                            weight
+                    ));
+            return;
+        }
+        params.weight = weight;
+        if (horizontally) params.width = 0;
+        else params.height = 0;
+        view.setLayoutParams(params);
+    }
 
     public static CardView makeCardView() {
         return new CardView(MainActivity.appContext);

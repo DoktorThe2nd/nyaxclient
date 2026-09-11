@@ -4,7 +4,6 @@ import com.doktorthe2nd.nyax.Consts;
 import com.doktorthe2nd.nyax.types.MapContainer;
 import com.doktorthe2nd.nyax.modules.MReporter;
 import com.doktorthe2nd.nyax.modules.Profile;
-import com.doktorthe2nd.nyax.modules.chat.MChats;
 import com.doktorthe2nd.nyax.net.Connection;
 import com.doktorthe2nd.nyax.net.OpcodeTable;
 
@@ -42,7 +41,7 @@ public class MSync {
                 MReporter.toastError("No chats in answer");
                 return;
             }
-            MChats.addFromLogin(chats);
+            //MChats.addFromLogin(chats);
             onReply.run();
         });
     }

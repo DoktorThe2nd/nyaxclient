@@ -4,6 +4,8 @@
 
 local M = {}
 
+local Utils = api:findClass('Utils')
+
 function writeNilTrackable(value)
     if type(value) == "nil" then return "nil" end
     if type(value) == "string" then return "S"..value end
@@ -55,12 +57,23 @@ function M.oneTimeInit(fun)
     return table
 end
 
-M.Coercers = api:findClass('Utils.Coercer')
-local Utils = api:findClass('Utils')
+M.Coercers = api:findClass('Utils$Coercer')
+
+function M.jListToTable(list)
+    return Utils:coerceList(list)
+end
 
 function M.tableToJList(tbl, coercer)
     if type(tbl) ~= "table" then error("util.tableToJList expected table, got "..type(tbl)) end
     return Utils:coerceToArrayList(tbl, coercer)
+end
+function M.tableToJMap(tbl, key_coercer, value_coercer)
+    if type(tbl) ~= "table" then error("util.tableToJMap expected table, got "..type(tbl)) end
+    return Utils:coerceToHashMap(tbl, key_coercer, value_coercer)
+end
+function M.tableToJMapC(tbl)
+    if type(tbl) ~= "table" then error("util.tableToJMapC expected table, got "..type(tbl)) end
+    return Utils:coerceToMapContainer(tbl)
 end
 
 return M

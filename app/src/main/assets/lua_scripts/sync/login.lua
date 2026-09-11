@@ -6,8 +6,10 @@ local events = require('nyax.events.base')
 local session = require('nyax.session')
 local net_base = require('nyax.net.base')
 local net_sync = require('nyax.net.packets.sync')
+local chats = require('nyax.chats')
 
 local Profile = api:findClass('Profile')
+local Chat = api:findClass('chat.Chat')
 
 events.subscribe(session.Events.LoginSuccess, function(...)
     local login_packet = net_sync.newLogin()
@@ -15,6 +17,7 @@ events.subscribe(session.Events.LoginSuccess, function(...)
         local answer = net_base.deserialize(login_packet, packet)
         if net_base.isError(answer) then error("Login sync error: "..answer:getMessage()) end
         Profile.me = luajava.new(Profile, answer:getMyProfileData())
-        -- TODO CHATS!
+        chats.List.set(Chat:fromData(answer:getChatsData()))
+        events.call(chats.Events.OpenChatsList)
     end)
 end)

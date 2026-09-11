@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MChats {
-    public static final List<Chat> chats = new ArrayList<>();
+    /*public static final List<Chat> chats = new ArrayList<>();
     private static Chat currentChat;
 
     public static Chat getCurrentChat() {
@@ -22,5 +22,5 @@ public class MChats {
         for (var chat_data : list) {
             chats.add(Chat.fromData(MapContainer.of(chat_data)));
         }
-    }
+    }*/
 }
