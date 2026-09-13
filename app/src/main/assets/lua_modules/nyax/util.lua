@@ -1,4 +1,8 @@
 -- METADATA
+-- NAME Util module
+-- DESC Safe to use. Provides variety of helpful functions.
+-- AUTHOR DoktorThe2nd
+-- VERSION built-in
 -- REQUIRE-TRUSTED
 -- METADATA
 
@@ -57,6 +61,38 @@ function M.oneTimeInit(fun)
     return table
 end
 
+function _completable_set(self, value)
+    self._value:set(value)
+    self.complete = function(_self2, _v) end
+    self.get = function(self2) return self2._value:get() end
+    self.set = function(self2, v) self2._value:set(v) end
+    self.onComplete = function(self2, f) f(self2._value:get()) end
+    for i = 1, #self._waiters do
+        self._waiters[i](self:get())
+    end
+    self._waiters = {}
+end
+
+function M.newCompletable()
+    return {
+        _value = M.newEmptyTrackable(),
+        _waiters = {},
+        onComplete = function(self, fun) if type(fun) ~= "nil" then self._waiters[#self._waiters+1] = fun end end,
+        set = _completable_set,
+        complete = _completable_set,
+        isComplete = function(self) return not self._value:isEmpty() end,
+        getOrNil = function(self) return self._value:get() end,
+        get = function(self) error("completable.get called on incomplete completable") end
+    }
+end
+
+function M.mapCompletable(compl, mapper)
+    local ret = M.newCompletable()
+    compl:onComplete(function(v) ret:complete(mapper(v)) end)
+    return ret
+end
+M.mapC = M.mapCompletable
+
 M.Coercers = api:findClass('Utils$Coercer')
 
 function M.jListToTable(list)
@@ -76,4 +112,15 @@ function M.tableToJMapC(tbl)
     return Utils:coerceToMapContainer(tbl)
 end
 
-return M
+function M.secure(tbl)
+    local proxy = {}
+    local mt = {
+        __index = tbl,
+        __newindex = function(t, k, v) return error("Attempt to modify value in secured table: '"..k.."'") end,
+        __metatable = false
+    }
+    setmetatable(proxy, mt)
+    return proxy
+end
+
+return M.secure(M)

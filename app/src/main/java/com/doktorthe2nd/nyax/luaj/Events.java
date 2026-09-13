@@ -10,6 +10,7 @@ import com.doktorthe2nd.nyax.luaj.loaders.LuaFromTrustedLoader;
 import com.doktorthe2nd.nyax.net.Packet;
 
 import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -34,10 +35,10 @@ public class Events {
     }
 
     protected static void runOnReply(LuaFunction function, Packet packet) {
-        MainActivity.luajThread.callEvent(_RUN_ON_REPLY, LuaValue.varargsOf(function, CoerceJavaToLua.coerce(packet)));
+        MainActivity.luajThread.callEvent(_RUN_ON_REPLY, function, CoerceJavaToLua.coerce(packet));
     }
     protected static void runOnClick(LuaFunction function, View view) {
-        MainActivity.luajThread.callEvent(_RUN_ON_CLICK, LuaValue.varargsOf(function, CoerceJavaToLua.coerce(view)));
+        MainActivity.luajThread.callEvent(_RUN_ON_CLICK, function, CoerceJavaToLua.coerce(view));
     }
 
     private static String findScript(String name) {
@@ -55,8 +56,8 @@ public class Events {
         engine.add_subscriber(_RUN_MODULE, new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-                if (args.narg() < 1) throw new LuaException("RunModule: Got no module name");
-                String name = args.arg1().checkjstring();
+                if (args.narg() != 1) throw new LuaException("RunModule: Got no module name");
+                String name = args.arg1().checktable().get(1).checkjstring();
                 System.out.println("RunModule got '"+name+"'");
                 String scr = findScript(name);
                 if (scr == null) throw new LuaException("RunModule: Module '"+name+"' not found");
@@ -67,18 +68,20 @@ public class Events {
         engine.add_subscriber(_RUN_ON_REPLY, new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-                if (args.narg() < 2) throw new LuaException("RunOnReply: Got wrong number of args");
-                LuaFunction func = args.arg(1).checkfunction();
-                LuaValue packet = args.arg(2).checknotnil();
+                if (args.narg() != 1) throw new LuaException("RunOnReply: Got wrong number of args");
+                LuaTable tbl = args.arg1().checktable();
+                LuaFunction func = tbl.get(1).checkfunction();
+                LuaValue packet = tbl.get(2).checknotnil();
                 return func.call(packet);
             }
         });
         engine.add_subscriber(_RUN_ON_CLICK, new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-                if (args.narg() < 2) throw new LuaException("RunOnClick: Got wrong number of args");
-                LuaFunction func = args.arg(1).checkfunction();
-                LuaValue view = args.arg(2).checknotnil();
+                if (args.narg() != 1) throw new LuaException("RunOnClick: Got wrong number of args");
+                LuaTable tbl = args.arg1().checktable();
+                LuaFunction func = tbl.get(1).checkfunction();
+                LuaValue view = tbl.get(2).checknotnil();
                 return func.call(view);
             }
         });

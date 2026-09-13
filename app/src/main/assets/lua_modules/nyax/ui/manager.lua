@@ -7,9 +7,9 @@
 -- METADATA
 
 local M = {}
-
+local util = require('nyax.util')
 local UIBuilder = api:findClass('UIBuilder')
 
 function M.setLayout(layout) return UIBuilder:setContentView(layout) end
 
-return M
+return util.secure(M)

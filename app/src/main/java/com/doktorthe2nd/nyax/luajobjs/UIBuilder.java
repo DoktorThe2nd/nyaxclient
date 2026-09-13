@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -12,6 +13,7 @@ import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Space;
 
 import androidx.cardview.widget.CardView;
 
@@ -96,6 +98,10 @@ public class UIBuilder {
             lay.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         }
         return lay;
+    }
+
+    public static View makeSpace() {
+        return new Space(MainActivity.appContext);
     }
 
     public static UIRecyclerView makeRecyclerView() {

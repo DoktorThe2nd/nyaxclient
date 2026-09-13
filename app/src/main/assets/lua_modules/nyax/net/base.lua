@@ -7,13 +7,14 @@
 -- METADATA
 
 local M = {}
-
+local util = require('nyax.util')
 local event_gen = require('nyax.events.generator')
 
-M.Events = {}
-M.Events.SocketOpened = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_OPENED)
-M.Events.SocketClosed = event_gen.generate_wrapped_noncallable(event_gen.namespace.SOCKET_CLOSED)
-M.Events.UnhandledPacketReceived = event_gen.generate_wrapped_noncallable(event_gen.namespace.UNHANDLED_PACKET)
+M.Events = event_gen.fromTable({
+    _SocketOpened = event_gen.namespace.SOCKET_OPENED,
+    _SocketClosed = event_gen.namespace.SOCKET_CLOSED,
+    _UnhandledPacketReceived = event_gen.namespace.UNHANDLED_PACKET
+})
 
 function M.isError(packet)
     if type(packet.isError) == "function" then return packet:isError() end
@@ -35,11 +36,37 @@ function M.sendPacket(packet, onReply)
     if type(packet.send) ~= "function" then error("sendPacket got packet with no send function") end
     if type(packet.sendIgnoreReply) ~= "function" then error("sendPacket got packet with no sendIgnoreReply function") end
     if type(onReply) == "function" then
-        local proxy = api:makeOnReply(onReply)
-        packet:send(proxy)
+        packet:send(api:makeOnReply(onReply))
     else
         packet:sendIgnoreReply()
     end
 end
 
-return M
+function M.sendPacketDeserialize(packet, onReply)
+    if type(onReply) == "nil" then return M.sendPacket(packet, nil) end
+    M.sendPacket(packet, function(p)
+        local answer = M.deserialize(packet, p)
+        if M.isError(answer) then error("Response error: "..answer:getMessage()) end
+        onReply(answer)
+    end)
+end
+
+function M.sendPacketCompletable(packet)
+    local comp = util.newCompletable()
+    M.sendPacket(packet, function(p) comp:complete(p) end)
+    return comp
+end
+
+function M.sendPacketCompletableDeserialize(packet)
+    local comp = util.newCompletable()
+    M.sendPacketDeserialize(packet, function(p) comp:complete(p) end)
+    return comp
+end
+
+M.send = M.sendPacket
+M.sendD = M.sendPacketDeserialize
+M.sendC = M.sendPacketCompletable
+M.sendDC = M.sendPacketCompletableDeserialize
+M.sendCD = M.sendPacketCompletableDeserialize
+
+return util.secure(M)

@@ -7,9 +7,10 @@
 -- METADATA
 
 local M = {}
+local util = require('nyax.util')
 local Connection = api:findClass('com.doktorthe2nd.nyax.net.Connection')
 
 function M.start() Connection:start() end
 function M.stop() Connection:stop() end
 
-return M
+return util.secure(M)

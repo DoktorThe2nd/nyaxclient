@@ -7,6 +7,7 @@ import com.doktorthe2nd.nyax.luaj.loaders.LuaFromImportedLoader;
 import com.doktorthe2nd.nyax.net.Packet;
 
 import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
@@ -44,10 +45,13 @@ public class LuajThread {
     }
 
     public void callEvent(String event_name) {
-        engine.push_event(event_name, LuaValue.NIL);
+        engine.push_event(event_name, LuaValue.tableOf());
     }
-    public void callEvent(String event_name, Varargs args) {
+    public void callEvent(String event_name, LuaTable args) {
         engine.push_event(event_name, args);
+    }
+    public void callEvent(String event_name, LuaValue... args) {
+        engine.push_event(event_name, LuaValue.listOf(args));
     }
 
     public void addEventSubscriber(String event_name, LuaFunction function) {

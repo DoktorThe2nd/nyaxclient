@@ -3,7 +3,7 @@ package com.doktorthe2nd.nyax.types.chat;
 import com.doktorthe2nd.nyax.types.MapContainer;
 
 public class ChannelChat extends Chat {
-    private String title;
+    private String title = "<null title!>";
 
     @Override
     public String getTitle() {

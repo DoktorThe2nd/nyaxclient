@@ -7,7 +7,7 @@
 -- METADATA
 
 local M = {}
-
+local util = require('nyax.util')
 local UIBuilder = api:findClass('UIBuilder')
 
 function M.newGradientDrawable() return UIBuilder:newGradientDrawable() end
@@ -69,4 +69,4 @@ function M.applyTheme(view, view_type)
     if view_type == "edit_text" then current_theme.edit_text(view) end
 end -- view_type can be button/text/container/cardview/root/edit_text
 
-return M
+return util.secure(M)

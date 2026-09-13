@@ -18,8 +18,12 @@ public abstract class Chat {
     public List<Message> messages = new ArrayList<>();
     public Message lastMessage;
 
-    public long id; // = id = cid
-    public long lastChangeTime; // = modified
+    private long id = -1; // = id = cid
+    public long lastChangeTime = -1; // = modified
+
+    public long getId() {
+        return id;
+    }
 
     public abstract String getTitle();
     public abstract void init(MapContainer map);
@@ -48,7 +52,7 @@ public abstract class Chat {
             for (Map<Object, Object> msg_map : MapContainer.of(packet.payload).getMapsArray("messages")) {
                 msgs.add(Message.attempts(MapContainer.of(msg_map)));
             }
-            prependMessages(msgs);
+            prepend(msgs);
         });
     }
     public void downloadMessagesForwards(int count, Message from) {
@@ -72,22 +76,33 @@ public abstract class Chat {
             for (Map<Object, Object> msg_r_map : MapContainer.of(packet.payload).getMapsArray("messages")) {
                 msgs.add(Message.attempts(MapContainer.of(msg_r_map)));
             }
-            addMessages(msgs);
+            append(msgs);
         });
     }
 
-    public void prependMessages(List<Message> msgs) {
+    public void append(Message msg) {
+        messages.add(msg);
+        if (messages_map.put(msg.id, msg) != null)
+            MReporter.toastError("Message duplication.");
+    }
+    public void prepend(Message msg) {
+        messages.add(0, msg);
+        if (messages_map.put(msg.id, msg) != null)
+            MReporter.toastError("Message duplication.");
+    }
+
+    public void prepend(List<Message> msgs) {
         messages.addAll(0, msgs);
         for (Message msg : msgs) {
             if (messages_map.put(msg.id, msg) != null)
-                MReporter.toastError("Message duplication. Re-enter chat.");
+                MReporter.toastError("Message duplication.");
         }
     }
-    public void addMessages(List<Message> msgs) {
+    public void append(List<Message> msgs) {
         messages.addAll(msgs);
         for (Message msg : msgs) {
             if (messages_map.put(msg.id, msg) != null)
-                MReporter.toastError("Message duplication. Re-enter chat.");
+                MReporter.toastError("Message duplication.");
         }
     }
     public void clear() {
@@ -97,9 +112,11 @@ public abstract class Chat {
 
     public Message getMessageById(long id) {
         if (messages_map.containsKey(id)) return messages_map.get(id);
-        return null; // TODO: download message
+        throw new RuntimeException("Chat.getMessageById - TODO reached");
+        //return null; // TODO: download message
     }
 
+    Chat() {}
     public static Chat attempts(MapContainer map) {
         String type = map.getStringOr("type", "null");
         Chat chat;
@@ -117,6 +134,9 @@ public abstract class Chat {
         chat.init(map);
 
         return chat;
+    }
+    public static Chat emptyChat() {
+        return new ChannelChat();
     }
 
     public static List<Chat> sortByTime(List<Chat> list) {

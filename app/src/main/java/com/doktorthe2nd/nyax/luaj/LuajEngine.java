@@ -3,6 +3,7 @@ package com.doktorthe2nd.nyax.luaj;
 import org.jetbrains.annotations.NotNull;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.compiler.LuaC;
@@ -41,7 +42,7 @@ class LuajEngine {
      * @param name event name
      * @param args arguments
      */
-    public void push_event(String name, Varargs args) {
+    public void push_event(String name, LuaTable args) {
         events.add(new Event(name.toLowerCase(), args));
     }
 
@@ -68,10 +69,11 @@ class LuajEngine {
         try {
             while (running.get()) {
                 Event event = events.take();
-                var subscribers = this.subscribers.get(event.name);
+                List<ExecutableScript> subscribers = this.subscribers.get(event.name);
                 if (subscribers == null) continue;
                 for (var item : subscribers) {
-                    if (event.args == null) item.invoke(LuaValue.NIL);
+                    System.out.println("event call: "+event.name+" args "+event.args);
+                    if (event.args == null) item.invoke(LuaValue.tableOf());
                     else item.invoke(event.args);
                 }
             }
@@ -85,7 +87,7 @@ class LuajEngine {
     }
 
     private interface EventsAPI {
-        void call(String name, Varargs args);
+        void call(String name, LuaTable args);
         void subscribe(String name, LuaFunction function);
     }
 
@@ -105,11 +107,12 @@ class LuajEngine {
         restricted_globals.set("loadlib", LuaValue.NIL);
         restricted_globals.set("dofile", LuaValue.NIL);
         restricted_globals.set("loadfile", LuaValue.NIL);
+        restricted_globals.set("rawset", LuaValue.NIL);
 
         trusted_globals.set("api", CoerceJavaToLua.coerce(api));
         trusted_globals.set("events_api", CoerceJavaToLua.coerce(new EventsAPI() {
             @Override
-            public void call(String name, Varargs args) {
+            public void call(String name, LuaTable args) {
                 push_event(name, args);
             }
             @Override

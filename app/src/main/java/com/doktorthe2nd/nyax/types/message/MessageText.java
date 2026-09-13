@@ -10,6 +10,10 @@ public class MessageText extends Message {
     public List<String> elements = new ArrayList<>();
     public List<String> attaches = new ArrayList<>();
 
+    public String getText() {
+        return text;
+    }
+
     public MessageText(MapContainer map) {
         super(map);
         text = map.getStringOr("text", "<null msg text>");

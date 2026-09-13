@@ -7,7 +7,6 @@
 -- METADATA
 
 local M = {}
-
 local UIBuilder = api:findClass('UIBuilder')
 local theme = require('nyax.ui.theme')
 local util = require('nyax.util')
@@ -23,13 +22,23 @@ function M.setFillSpace(view, horizontally, weight)
 end
 
 M.Gravity = api:findGlobalClass('android.view.Gravity')
-M.TextAlign = {
+M.TextAlign = util.secure({
     INHERIT = 0,
     LEFT = 2,
     RIGHT = 3,
     CENTER = 4
-}
+})
 M.InputType = api:findGlobalClass('android.text.InputType')
+
+function M.makeFillSpace(horizontal)
+    return M.setFillSpace(UIBuilder:makeSpace(), horizontal, 1)
+end
+function M.makeSpace(x, y)
+    local space = UIBuilder:makeSpace()
+    space:setX(x)
+    space:setY(y)
+    return space
+end
 
 function M.makeEditText(hint, text, type)
     local view = UIBuilder:makeEditText(hint, text, type)
@@ -52,7 +61,7 @@ end
 function addVarargsViews(view, ...)
     local args = table.pack(...)
     for i = 1, args.n do
-        view:addView(args[i])
+        if type(args[i]) == "userdata" then view:addView(args[i]) end
     end
 end
 
@@ -94,4 +103,4 @@ function M.cardContainer(horizontal, divider_size, ...)
     return M.makeCardView(M.makeContainer(horizontal, divider_size, ...))
 end
 
-return M
+return util.secure(M)

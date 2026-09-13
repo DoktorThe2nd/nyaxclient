@@ -7,17 +7,27 @@
 -- METADATA
 
 local M = {}
-
+local util = require('nyax.util')
 local event_gen = require('nyax.events.generator')
+
+M.Packets = require('nyax.net.packets').fromTable("session", {
+    sessionInit = "SessionInitPacket",
+    authCodeRequest = "AuthRequestPacket",
+    authCodeSend = "AuthCodePacket",
+    authPasswordSend = "AuthPasswordPacket",
+    login = "LoginPacket"
+})
 
 local SessionData = api:findClass('SessionData')
 local Consts = api:findGlobalClass('com.doktorthe2nd.nyax.Consts')
 
-M.Events = {}
-M.Events.LoginSuccess = event_gen.generate_wrapped("nyax:login_success")
+M.Events = event_gen.fromTable({
+    StartAuthFlow = "nyax:start_auth_flow",
+    LoginSuccess = "nyax:login_success"
+})
 
 function M.normalizePhone(phone)
-    if type(phone) ~= "string" then error("session.normalizePhone got not a string") end
+    if type(phone) ~= "string" then return error("normalizePhone got not a string") end
     return "+"..phone:gsub("%D", "")
 end
 
@@ -30,7 +40,7 @@ function M.saveCurrentSession() SessionData:saveSession(Consts.sessionSlot:get()
 function M.invalidateCurrentSession()
     Consts.currentSession.token = nil
     M.saveCurrentSession()
-    event_gen.generate("nyax:startAuthFlow").call()
+    M.Events.StartAuthFlow.call()
 end
 
 function M.loadSession(slot)
@@ -40,4 +50,4 @@ function M.loadSession(slot)
     return true
 end
 
-return M
+return util.secure(M)
