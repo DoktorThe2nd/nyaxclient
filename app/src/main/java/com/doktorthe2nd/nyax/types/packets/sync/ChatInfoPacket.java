@@ -1,4 +1,4 @@
-package com.doktorthe2nd.nyax.types.packets.chat;
+package com.doktorthe2nd.nyax.types.packets.sync;
 
 import com.doktorthe2nd.nyax.net.OpcodeTable;
 import com.doktorthe2nd.nyax.types.MapContainer;

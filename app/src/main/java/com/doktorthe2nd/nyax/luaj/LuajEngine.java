@@ -34,7 +34,7 @@ class LuajEngine {
 
     private final ConcurrentMap<String, List<ExecutableScript>> subscribers = new ConcurrentHashMap<>();
 
-    protected final Globals trusted_globals = JsePlatform.standardGlobals();
+    protected final Globals trusted_globals = JsePlatform.debugGlobals();
     protected final Globals restricted_globals = new Globals();
 
     /**

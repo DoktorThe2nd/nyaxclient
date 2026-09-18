@@ -42,6 +42,14 @@ public class MainActivity extends Activity {
             return !weakDead();
         }
 
+        public boolean classIsInstance(Class<?> clz, Object obj) {
+            return clz.isInstance(obj);
+        }
+
+        public String getObjectClassName(Object obj) {
+            return obj.getClass().getName();
+        }
+
         public Class<?> findGlobalClass(String name) throws ClassNotFoundException {
             return Class.forName(name, true, this.getClass().getClassLoader());
         }

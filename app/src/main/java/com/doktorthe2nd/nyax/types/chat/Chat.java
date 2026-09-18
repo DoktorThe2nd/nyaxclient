@@ -101,7 +101,7 @@ public abstract class Chat {
     public void append(List<Message> msgs) {
         messages.addAll(msgs);
         for (Message msg : msgs) {
-            if (messages_map.put(msg.id, msg) != null)
+            if (messages_map.put(msg.id, msg) == null)
                 MReporter.toastError("Message duplication.");
         }
     }

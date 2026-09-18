@@ -1,5 +1,5 @@
 -- METADATA
--- NAME Networking base
+-- NAME Network base
 -- DESC Network related events and sendPacket function
 -- AUTHOR DoktorThe2nd
 -- VERSION built-in
@@ -32,12 +32,14 @@ function M.deserialize(instance, packet)
 end
 
 function M.sendPacket(packet, onReply)
-    if type(packet) ~= "userdata" then error("sendPacket got wrong packet argument") end
-    if type(packet.send) ~= "function" then error("sendPacket got packet with no send function") end
-    if type(packet.sendIgnoreReply) ~= "function" then error("sendPacket got packet with no sendIgnoreReply function") end
+    if type(packet) ~= "userdata" then return error("sendPacket got wrong packet argument") end
     if type(onReply) == "function" then
+        if type(packet.send) ~= "function" then
+            return error("sendPacket got packet with no send function") end
         packet:send(api:makeOnReply(onReply))
     else
+        if type(packet.sendIgnoreReply) ~= "function" then
+            return error("sendPacket got packet with no sendIgnoreReply function") end
         packet:sendIgnoreReply()
     end
 end
@@ -46,7 +48,7 @@ function M.sendPacketDeserialize(packet, onReply)
     if type(onReply) == "nil" then return M.sendPacket(packet, nil) end
     M.sendPacket(packet, function(p)
         local answer = M.deserialize(packet, p)
-        if M.isError(answer) then error("Response error: "..answer:getMessage()) end
+        if M.isError(answer) then return error("Response error: "..answer:getMessage()) end
         onReply(answer)
     end)
 end

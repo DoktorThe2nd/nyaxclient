@@ -21,11 +21,22 @@ function M.standard()
     local radius = 10
     local text_color = 0xFFFFFFFF
     local button_color = 0xFF666666
+    local message_radius = 25
+    local message_color_mine = 0xFF00FF00
+    local message_color_other = 0xFFFF0000
     return {
         cardview = function(view)
             view:setRadius(5000)
             view:setCardBackgroundColor(background_color)
             M.setWrapContent(view)
+            end,
+        message_mine = function(view)
+            view:getBackground():setCornerRadius(message_radius)
+            view:getBackground():setColor(message_color_mine)
+            end,
+        message_other = function(view)
+            view:getBackground():setCornerRadius(message_radius)
+            view:getBackground():setColor(message_color_other)
             end,
         generic = function(view)
             local gradient = M.newGradientDrawable()
@@ -56,7 +67,7 @@ end
 local current_theme = M.standard()
 
 function M.applyTheme(view, view_type)
-    if current_theme == nil then error("Current theme is not set") end
+    if type(current_theme) ~= "table" then error("Current theme is not a table") end
     if type(view) ~= "userdata" then error("applyTheme got wrong view argument") end
 
     if view_type == "cardview" then return current_theme.cardview(view) end
@@ -67,6 +78,8 @@ function M.applyTheme(view, view_type)
     if view_type == "container" then current_theme.container(view) end
     if view_type == "text" then current_theme.text(view) end
     if view_type == "edit_text" then current_theme.edit_text(view) end
-end -- view_type can be button/text/container/cardview/root/edit_text
+    if view_type == "message_mine" then current_theme.message_mine(view) end
+    if view_type == "message_other" then current_theme.message_other(view) end
+end -- view_type can be button/text/container/cardview/root/edit_text/message_mine/message_other
 
 return util.secure(M)

@@ -10,7 +10,7 @@ local M = {}
 local util = require('nyax.util')
 
 function M.dir(dir_name)
-    return {
+    return util.secure({
         dir = dir_name,
         getClass = function(self, name)
             return api:findPacketClass(self.dir_name..'.'..name)
@@ -25,7 +25,7 @@ function M.dir(dir_name)
                 new = function(...) return self:getInst(name, ...) end
             })
             end
-    }
+    })
 end
 
 function M.fromTable(dir, tbl)
